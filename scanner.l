@@ -1,7 +1,7 @@
 /* CMSC 430 Compiler Theory and Design
-   Project 1 Skeleton
-   UMGC CITE
-   Summer 2023 */
+   Jonathan Apolaya
+   UMGC 430
+   FLEX INPUTS adding real numbers regex and hex, ARITHMATIC AND logical tokens added.
    
 /* This file contains flex input file */
 

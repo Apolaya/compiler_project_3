@@ -4,6 +4,7 @@
    Jonathan Apolaya 
    CMSC 430 
    Compiler Theory
+   Descprition: added the grammer for arithmatic, left and right, level of precendence , removed EBNF and added recursion. added error handling to complete a parse with multiple errors. 
 
    Project 2 Parser */
 
@@ -92,7 +93,7 @@ statement:
 	fold_statement | 
 	WHEN condition ',' expression ':' expression |
 	SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH |
-	SWITCH expression IS cases OTHERS error ';' ENDSWITCH ;
+	SWITCH expression IS cases  error ';' ENDSWITCH ;
 
 fold_statement:
 	FOLD direction operator operand ENDFOLD
@@ -128,6 +129,7 @@ cases:
 	
 case:
 	CASE INT_LITERAL ARROW statement ';' | 
+	CASE error ARROW statement ';' | 
 	CASE INT_LITERAL ARROW error ';' ;
 
 condition:
