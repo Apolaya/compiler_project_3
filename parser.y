@@ -1,0 +1,183 @@
+/* CMSC 430 Compiler Theory and Design
+   Project 2 Skeleton
+
+   Jonathan Apolaya 
+   CMSC 430 
+   Compiler Theory
+
+   Project 2 Parser */
+
+%{
+
+#include <string>
+
+using namespace std;
+
+#include "listing.h"
+
+int yylex();
+void yyerror(const char* message);
+
+%}
+
+%define parse.error verbose
+
+%token IDENTIFIER INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL
+
+%token ADDOP MULOP ANDOP RELOP ARROW REMOP EXPOP NEGOP OROP NOTOP
+
+%token LEFT RIGHT 
+
+%token ELSIF ENDFOLD FOLD IF THEN 
+
+%token BEGIN_ CASE CHARACTER ELSE END ENDSWITCH FUNCTION INTEGER IS LIST OF OTHERS RETURNS SWITCH WHEN
+
+
+
+
+
+%%
+
+function:	
+	function_header optional_variable body ;
+
+function_header:	
+	FUNCTION IDENTIFIER parameters RETURNS type ';'  |
+	FUNCTION IDENTIFIER error ';';
+
+parameters:
+	%empty |
+	parameter_list ;
+
+parameter_list:
+	parameter |
+	parameter_list ',' parameter |
+	parameter_list error ;
+
+parameter: 
+	IDENTIFIER ':' type ;
+
+type:
+	INTEGER |
+	CHARACTER |
+	REAL;
+	
+optional_variable:
+	optional_variable variable|
+	optional_variable error |
+	%empty ;
+    
+variable:	
+	IDENTIFIER ':' type IS statement ';' |
+	IDENTIFIER ':' LIST OF type IS list ';' ;
+
+
+list:
+	'(' expressions ')' ;
+
+expressions:
+	expressions ',' expression| 
+	expression ;
+
+body:
+	BEGIN_ statement_ END ';' ;
+
+statement_:
+	statement ';' |
+	error ';' ;
+    
+statement:
+	expression |
+	if_statement |
+	fold_statement | 
+	WHEN condition ',' expression ':' expression |
+	SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH |
+	SWITCH expression IS cases OTHERS error ';' ENDSWITCH ;
+
+fold_statement:
+	FOLD direction operator operand ENDFOLD
+
+direction:
+	LEFT | RIGHT ;
+operator: 
+	ADDOP | MULOP ;
+
+operand: 
+       list | IDENTIFIER;
+
+
+if_statement:  
+	IF condition THEN statement_ elsif_clauses optional_else ENDFOLD ;
+
+elsif_clauses:
+	elsif_clauses elsif_clause |
+	%empty ;
+
+elsif_clause:
+	ELSIF condition THEN statement_ ;
+
+optional_else:
+	ELSE statement_ |
+	%empty;
+
+
+
+cases:
+	cases case |
+	%empty ;
+	
+case:
+	CASE INT_LITERAL ARROW statement ';' | 
+	CASE INT_LITERAL ARROW error ';' ;
+
+condition:
+	condition OROP logical_and |
+	logical_and ;
+
+logical_and:
+	logical_and ANDOP logical_not |
+	logical_not ;
+
+logical_not:
+	NOTOP logical_not |
+	relation
+relation:
+	'(' condition ')' |
+	expression RELOP expression ;
+
+expression:
+	expression ADDOP term |
+	term ;
+
+term:
+	term MULOP factor |
+	term REMOP factor |
+	factor ;
+
+factor:       
+	factor EXPOP primary |
+	primary ;
+      
+
+primary:
+	'(' expression ')' |
+	NEGOP primary |
+	INT_LITERAL |
+	CHAR_LITERAL |
+	REAL_LITERAL |
+	HEX_LITERAL |
+	IDENTIFIER '(' expression ')' |
+	IDENTIFIER ;
+
+%%
+
+void yyerror(const char* message) {
+	appendError(SYNTAX, message);
+}
+
+int main(int argc, char *argv[]) {
+	firstLine();
+	yyparse();
+	lastLine();
+	return 0;
+} 
