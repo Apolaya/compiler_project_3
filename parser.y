@@ -20,18 +20,35 @@ using namespace std;
 
 #include "values.h"
 #include "listing.h"
-#include "tokens.h"
+#include "symbols.h"
+
 
 int yylex();
 void yyerror(const char* message);
+double extract_element(CharPtr list_name, double subscript);
+
+Symbols<double> scalars;
+Symbols<vector<double>*> lists;
+double result;
+
 
 %}
 
 %define parse.error verbose
 
-%token IDENTIFIER INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL
+%union {
+	CharPtr iden;
+	Operators oper;
+	double value;
+	vector<double>* list;
+}
 
-%token ADDOP MULOP ANDOP RELOP ARROW REMOP EXPOP NEGOP OROP NOTOP
+%token <iden> IDENTIFIER
+
+%token <value> INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL
+
+%token <oper>  ADDOP MULOP ANDOP RELOP ARROW REMOP EXPOP NEGOP OROP NOTOP
+
 
 %token LEFT RIGHT 
 
@@ -40,13 +57,38 @@ void yyerror(const char* message);
 %token BEGIN_ CASE CHARACTER ELSE END ENDSWITCH FUNCTION INTEGER IS LIST OF OTHERS RETURNS SWITCH WHEN
 
 
+%type <value> expression term factor primary relation condition logical_and logical_not
+%type <oper> operator
+
+%type <list> list expressions
+
+%type <value> direction
+
+%type <value> operand
+
+%type <value> case cases
+%type <value> if_statement elsif_clauses elsif_clause optional_else
+%type <value> switch_statement when_statement
+%type <value> fold_statement
+
+%type <value> statement
+%type <value> statement_
+%type <value> statements
+%type <value> body
+
+%type <value> variable optional_variable
+
+%type <value> type
+%type <value> parameter parameter_list parameters
+%type <value> function_header
+%type <value> function
 
 
 
 %%
 
 function:	
-	function_header optional_variable body ;
+	function_header optional_variable body  {result = $3;} ;
 
 function_header:	
 	FUNCTION IDENTIFIER parameters RETURNS type ';'  |
@@ -76,26 +118,26 @@ optional_variable:
 	%empty ;
     
 variable:	
-	IDENTIFIER ':' type IS statement ';' |
-	IDENTIFIER ':' LIST OF type IS list ';' ;
+	IDENTIFIER ':' type IS statement ';' {scalars.insert($1, $5);}; |
+	IDENTIFIER ':' LIST OF type IS list ';' {lists.insert($1, $7);} ;
 
 
 list:
-	'(' expressions ')' ;
+	'(' expressions ')'  {$$ = $2;};
 
 expressions:
 	expressions ',' expression| 
 	expression ;
 
 body:
-	BEGIN_ statements END ';' ;
+	BEGIN_ statements END ';' {$$  = $2;} ;
 
 statements:
 	statements statement_ | %empty ;
 
 statement_:
 	statement ';' |
-	error ';' ;
+	error ';'  {$$ = 0} ;
     
 statement:
 	expression |
@@ -106,10 +148,10 @@ statement:
 
 switch_statement:
     SWITCH expression IS cases ENDSWITCH |      
-    SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH ;  
+    SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH {$$ = !isnan($4) ? $4 : $7;} ;  
 
 when_statement:
-	WHEN condition ',' expression ':' expression ;
+	WHEN condition ',' expression ':' expression {$$ = $2 ? $4 : $6} ;
 
 
 fold_statement:
@@ -142,16 +184,17 @@ optional_else:
 
 
 cases:
-	cases case |
-	%empty ;
+	cases case {$$ = !isnan($1) ? $1 : $2;} |
+	%empty {$$ = NAN;} ;
 	
 case:
-	CASE INT_LITERAL ARROW statements ';' | 
+	CASE INT_LITERAL ARROW statements ';' {$$ = $<value>-2 == $2 ? $4 : NAN; } |
 	CASE error ARROW statements ';' | 
 	CASE INT_LITERAL ARROW error ';' ;
 
 
 condition:
+	condition ANDOP relation {$$ = $1 && $2;} |
 	condition OROP logical_and |
 	logical_and ;
 
@@ -162,37 +205,37 @@ logical_and:
 logical_not:
 	NOTOP logical_not |
 	relation
-relation:
-	'(' condition ')' |
-	expression RELOP expression ;
 
+relation:
+	'(' condition ')' {$$ = $2;}|
+	expression RELOP expression {$$ = evaluateRelational($1, $2, $3)};
 expression:
-	expression operator term |
-	term ;
+	expression operator term {$$ = evaluateArithmetric($1, $2, $3);} |
+	term ; 
 
 term:
-	term MULOP factor |
-	term REMOP factor |
-	factor ;
+	term MULOP factor {$$ = evaluateArtithmetric($1, $2, $3 );}|
+	term REMOP factor {$$ = evaluateArtithmetric($1, $2, $3 );}|
+	factor ; 
 
 factor:       
-	factor EXPOP primary |
+	factor EXPOP primary {$$ = evaluateArithmetric($1, $2,$3 ); } |
 	primary ;
       
 
 primary:
-	'(' expression ')' |
+	'(' expression ')' {$$ = $2;} |
 	NEGOP primary |
 	INT_LITERAL |
 	CHAR_LITERAL |
 	REAL_LITERAL |
 	HEX_LITERAL |
-	IDENTIFIER '(' expression ')' |
-	IDENTIFIER ;
+	IDENTIFIER '(' expression ')' {$$ = ectract_element($1, $3);}|
+	IDENTIFIER {if (!scalars.find($1, $$)) appendError(UNDECLARED, $1);};
 
 %%
 
-void yyerror(const char* message) {
+void yyerror(const char* ssage) {
 	appendError(SYNTAX, message);
 }
 

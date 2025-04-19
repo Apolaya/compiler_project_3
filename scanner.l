@@ -95,7 +95,6 @@ then		{ ECHO; return(THEN); }
 {dec}		{ ECHO; yylval.value = atoi(yytext); return(INT_LITERAL); }
 {char}		{ ECHO; yylval.value = yytext[1]; return(CHAR_LITERAL); }
 
-{real}		{ ECHO; return (REAL_LITERAL); }
 {hex}		{ ECHO; return(HEX_LITERAL);}
 {punc}		{ ECHO; return(yytext[0]); }
 .		{ ECHO; appendError(LEXICAL, yytext); }

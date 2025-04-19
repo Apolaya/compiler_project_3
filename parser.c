@@ -71,18 +71,29 @@
 
 
 #include <string>
+#include <cmath> 
+#include <iostream>
+#include <vector>
+#include <map>
 
 using namespace std;
 
 #include "values.h"
 #include "listing.h"
-#include "tokens.h"
+#include "symbols.h"
+
 
 int yylex();
 void yyerror(const char* message);
+double extract_element(CharPtr list_name, double subscript);
+
+Symbols<double> scalars;
+Symbols<vector<double>*> lists;
+double result;
 
 
-#line 86 "parser.tab.c"
+
+#line 97 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -581,14 +592,14 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    45,    45,    48,    49,    52,    53,    56,    57,    58,
-      61,    64,    65,    66,    70,    71,    72,    75,    76,    80,
-      83,    84,    87,    90,    90,    93,    94,    97,    98,    99,
-     100,   101,   104,   105,   108,   112,   115,   115,   118,   118,
-     118,   121,   121,   125,   128,   129,   132,   135,   136,   141,
-     142,   145,   146,   147,   151,   152,   155,   156,   159,   160,
-     162,   163,   166,   167,   170,   171,   172,   175,   176,   180,
-     181,   182,   183,   184,   185,   186,   187
+       0,    91,    91,    94,    95,    98,    99,   102,   103,   104,
+     107,   110,   111,   112,   116,   117,   118,   121,   122,   126,
+     129,   130,   133,   136,   136,   139,   140,   143,   144,   145,
+     146,   147,   150,   151,   154,   158,   161,   161,   164,   164,
+     164,   167,   167,   171,   174,   175,   178,   181,   182,   187,
+     188,   191,   192,   193,   197,   198,   201,   202,   205,   206,
+     208,   209,   212,   213,   216,   217,   218,   221,   222,   226,
+     227,   228,   229,   230,   231,   232,   233
 };
 #endif
 
@@ -1547,8 +1558,26 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
+  case 2: /* function: function_header optional_variable body  */
+#line 91 "parser.y"
+                                                {result = (yyvsp[0].value);}
+#line 1565 "parser.tab.c"
+    break;
 
-#line 1552 "parser.tab.c"
+  case 17: /* variable: IDENTIFIER ':' type IS statement ';'  */
+#line 121 "parser.y"
+                                             {scalars.insert((yyvsp[-5].iden), (yyvsp[-1].value));}
+#line 1571 "parser.tab.c"
+    break;
+
+  case 18: /* variable: IDENTIFIER ':' LIST OF type IS list ';'  */
+#line 122 "parser.y"
+                                                {lists.insert((yyvsp[-7].iden), (yyvsp[-1].list));}
+#line 1577 "parser.tab.c"
+    break;
+
+
+#line 1581 "parser.tab.c"
 
       default: break;
     }
@@ -1772,7 +1801,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 189 "parser.y"
+#line 235 "parser.y"
 
 
 void yyerror(const char* message) {
