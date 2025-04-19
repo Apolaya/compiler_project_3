@@ -77,21 +77,22 @@ extern int yydebug;
     FOLD = 278,                    /* FOLD  */
     IF = 279,                      /* IF  */
     THEN = 280,                    /* THEN  */
-    BEGIN_ = 281,                  /* BEGIN_  */
-    CASE = 282,                    /* CASE  */
-    CHARACTER = 283,               /* CHARACTER  */
-    ELSE = 284,                    /* ELSE  */
-    END = 285,                     /* END  */
-    ENDSWITCH = 286,               /* ENDSWITCH  */
-    FUNCTION = 287,                /* FUNCTION  */
-    INTEGER = 288,                 /* INTEGER  */
-    IS = 289,                      /* IS  */
-    LIST = 290,                    /* LIST  */
-    OF = 291,                      /* OF  */
-    OTHERS = 292,                  /* OTHERS  */
-    RETURNS = 293,                 /* RETURNS  */
-    SWITCH = 294,                  /* SWITCH  */
-    WHEN = 295                     /* WHEN  */
+    ENDIF = 281,                   /* ENDIF  */
+    BEGIN_ = 282,                  /* BEGIN_  */
+    CASE = 283,                    /* CASE  */
+    CHARACTER = 284,               /* CHARACTER  */
+    ELSE = 285,                    /* ELSE  */
+    END = 286,                     /* END  */
+    ENDSWITCH = 287,               /* ENDSWITCH  */
+    FUNCTION = 288,                /* FUNCTION  */
+    INTEGER = 289,                 /* INTEGER  */
+    IS = 290,                      /* IS  */
+    LIST = 291,                    /* LIST  */
+    OF = 292,                      /* OF  */
+    OTHERS = 293,                  /* OTHERS  */
+    RETURNS = 294,                 /* RETURNS  */
+    SWITCH = 295,                  /* SWITCH  */
+    WHEN = 296                     /* WHEN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

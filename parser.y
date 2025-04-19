@@ -11,10 +11,16 @@
 %{
 
 #include <string>
+#include <cmath> 
+#include <iostream>
+#include <vector>
+#include <map>
 
 using namespace std;
 
+#include "values.h"
 #include "listing.h"
+#include "tokens.h"
 
 int yylex();
 void yyerror(const char* message);
@@ -29,7 +35,7 @@ void yyerror(const char* message);
 
 %token LEFT RIGHT 
 
-%token ELSIF ENDFOLD FOLD IF THEN 
+%token ELSIF ENDFOLD FOLD IF THEN ENDIF
 
 %token BEGIN_ CASE CHARACTER ELSE END ENDSWITCH FUNCTION INTEGER IS LIST OF OTHERS RETURNS SWITCH WHEN
 
@@ -62,6 +68,7 @@ type:
 	INTEGER |
 	CHARACTER |
 	REAL;
+
 	
 optional_variable:
 	optional_variable variable|
@@ -81,7 +88,10 @@ expressions:
 	expression ;
 
 body:
-	BEGIN_ statement_ END ';' ;
+	BEGIN_ statements END ';' ;
+
+statements:
+	statements statement_ | %empty ;
 
 statement_:
 	statement ';' |
@@ -91,34 +101,42 @@ statement:
 	expression |
 	if_statement |
 	fold_statement | 
-	WHEN condition ',' expression ':' expression |
-	SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH |
-	SWITCH expression IS cases  error ';' ENDSWITCH ;
+	when_statement |
+	switch_statement ;
+
+switch_statement:
+    SWITCH expression IS cases ENDSWITCH |      
+    SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH ;  
+
+when_statement:
+	WHEN condition ',' expression ':' expression ;
+
 
 fold_statement:
-	FOLD direction operator operand ENDFOLD
+	FOLD direction operator operand ENDFOLD;
 
 direction:
 	LEFT | RIGHT ;
+
 operator: 
-	ADDOP | MULOP ;
+	ADDOP | MULOP | RELOP;
 
 operand: 
        list | IDENTIFIER;
 
 
 if_statement:  
-	IF condition THEN statement_ elsif_clauses optional_else ENDFOLD ;
+	IF condition THEN statements elsif_clauses optional_else ENDIF;
 
 elsif_clauses:
 	elsif_clauses elsif_clause |
 	%empty ;
 
 elsif_clause:
-	ELSIF condition THEN statement_ ;
+	ELSIF condition THEN statements ;
 
 optional_else:
-	ELSE statement_ |
+	ELSE statements |
 	%empty;
 
 
@@ -128,9 +146,10 @@ cases:
 	%empty ;
 	
 case:
-	CASE INT_LITERAL ARROW statement ';' | 
-	CASE error ARROW statement ';' | 
+	CASE INT_LITERAL ARROW statements ';' | 
+	CASE error ARROW statements ';' | 
 	CASE INT_LITERAL ARROW error ';' ;
+
 
 condition:
 	condition OROP logical_and |
@@ -148,7 +167,7 @@ relation:
 	expression RELOP expression ;
 
 expression:
-	expression ADDOP term |
+	expression operator term |
 	term ;
 
 term:
