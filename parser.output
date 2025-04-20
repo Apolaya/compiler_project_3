@@ -1,3 +1,13 @@
+Nonterminals useless in grammar
+
+    vector
+
+
+Rules useless in grammar
+
+   77 vector: '(' ')'
+
+
 State 52 conflicts: 1 shift/reduce
 State 67 conflicts: 1 shift/reduce
 State 94 conflicts: 7 shift/reduce
@@ -32,7 +42,7 @@ Grammar
    14                  | optional_variable error
    15                  | ε
 
-   16 variable: IDENTIFIER ':' type IS statement ';'
+   16 variable: IDENTIFIER ':' type IS expression ';'
    17         | IDENTIFIER ':' LIST OF type IS list ';'
 
    18 list: '(' expressions ')'
@@ -84,7 +94,7 @@ Grammar
    48 cases: cases case
    49      | ε
 
-   50 case: CASE INT_LITERAL ARROW statements ';'
+   50 case: CASE INT_LITERAL ARROW statements
    51     | CASE error ARROW statements ';'
    52     | CASE INT_LITERAL ARROW error ';'
 
@@ -128,7 +138,7 @@ Terminals, with rules where they appear
     ')' (41) 18 60 69 75
     ',' (44) 7 19 33
     ':' (58) 9 16 17 33
-    ';' (59) 2 3 16 17 21 24 25 32 50 51 52
+    ';' (59) 2 3 16 17 21 24 25 32 51 52
     error (256) 3 8 14 25 51 52
     IDENTIFIER <iden> (258) 2 3 9 16 17 41 75 76
     INT_LITERAL <value> (259) 50 52 71
@@ -216,7 +226,7 @@ Nonterminals, with rules where they appear
         on right: 22
     statement <value> (61)
         on left: 26 27 28 29 30
-        on right: 16 24 32
+        on right: 24 32
     switch_statement <value> (62)
         on left: 31 32
         on right: 30
@@ -267,7 +277,7 @@ Nonterminals, with rules where they appear
         on right: 53 59
     expression <value> (78)
         on left: 62 63
-        on right: 19 20 26 31 32 33 61 62 69 75
+        on right: 16 19 20 26 31 32 33 61 62 69 75
     term <value> (79)
         on left: 64 65 66
         on right: 62 63 64 65
@@ -398,7 +408,7 @@ State 12
 
 State 13
 
-   16 variable: IDENTIFIER • ':' type IS statement ';'
+   16 variable: IDENTIFIER • ':' type IS expression ';'
    17         | IDENTIFIER • ':' LIST OF type IS list ';'
 
     ':'  shift, and go to state 22
@@ -474,7 +484,7 @@ State 21
 
 State 22
 
-   16 variable: IDENTIFIER ':' • type IS statement ';'
+   16 variable: IDENTIFIER ':' • type IS expression ';'
    17         | IDENTIFIER ':' • LIST OF type IS list ';'
 
     REAL       shift, and go to state 24
@@ -567,7 +577,7 @@ State 30
 
 State 31
 
-   16 variable: IDENTIFIER ':' type • IS statement ';'
+   16 variable: IDENTIFIER ':' type • IS expression ';'
 
     IS  shift, and go to state 57
 
@@ -838,7 +848,7 @@ State 56
 
 State 57
 
-   16 variable: IDENTIFIER ':' type IS • statement ';'
+   16 variable: IDENTIFIER ':' type IS • expression ';'
 
     IDENTIFIER    shift, and go to state 33
     INT_LITERAL   shift, and go to state 34
@@ -846,21 +856,12 @@ State 57
     HEX_LITERAL   shift, and go to state 36
     REAL_LITERAL  shift, and go to state 37
     NEGOP         shift, and go to state 38
-    FOLD          shift, and go to state 39
-    IF            shift, and go to state 40
-    SWITCH        shift, and go to state 42
-    WHEN          shift, and go to state 43
     '('           shift, and go to state 44
 
-    statement         go to state 84
-    switch_statement  go to state 47
-    when_statement    go to state 48
-    fold_statement    go to state 49
-    if_statement      go to state 50
-    expression        go to state 51
-    term              go to state 52
-    factor            go to state 53
-    primary           go to state 54
+    expression  go to state 84
+    term        go to state 52
+    factor      go to state 53
+    primary     go to state 54
 
 
 State 58
@@ -1159,9 +1160,15 @@ State 83
 
 State 84
 
-   16 variable: IDENTIFIER ':' type IS statement • ';'
+   16 variable: IDENTIFIER ':' type IS expression • ';'
+   62 expression: expression • operator term
 
-    ';'  shift, and go to state 103
+    ADDOP  shift, and go to state 76
+    MULOP  shift, and go to state 77
+    RELOP  shift, and go to state 78
+    ';'    shift, and go to state 103
+
+    operator  go to state 79
 
 
 State 85
@@ -1404,7 +1411,7 @@ State 102
 
 State 103
 
-   16 variable: IDENTIFIER ':' type IS statement ';' •
+   16 variable: IDENTIFIER ':' type IS expression ';' •
 
     $default  reduce using rule 16 (variable)
 
@@ -1616,7 +1623,7 @@ State 121
 
 State 122
 
-   50 case: CASE • INT_LITERAL ARROW statements ';'
+   50 case: CASE • INT_LITERAL ARROW statements
    51     | CASE • error ARROW statements ';'
    52     | CASE • INT_LITERAL ARROW error ';'
 
@@ -1750,7 +1757,7 @@ State 134
 
 State 135
 
-   50 case: CASE INT_LITERAL • ARROW statements ';'
+   50 case: CASE INT_LITERAL • ARROW statements
    52     | CASE INT_LITERAL • ARROW error ';'
 
     ARROW  shift, and go to state 143
@@ -1872,7 +1879,7 @@ State 142
 
 State 143
 
-   50 case: CASE INT_LITERAL ARROW • statements ';'
+   50 case: CASE INT_LITERAL ARROW • statements
    52     | CASE INT_LITERAL ARROW • error ';'
 
     error  shift, and go to state 147
@@ -1886,9 +1893,11 @@ State 143
     NEGOP         reduce using rule 23 (statements)
     FOLD          reduce using rule 23 (statements)
     IF            reduce using rule 23 (statements)
+    CASE          reduce using rule 23 (statements)
+    ENDSWITCH     reduce using rule 23 (statements)
+    OTHERS        reduce using rule 23 (statements)
     SWITCH        reduce using rule 23 (statements)
     WHEN          reduce using rule 23 (statements)
-    ';'           reduce using rule 23 (statements)
     '('           reduce using rule 23 (statements)
 
     statements  go to state 148
@@ -1951,7 +1960,7 @@ State 147
 State 148
 
    22 statements: statements • statement_
-   50 case: CASE INT_LITERAL ARROW statements • ';'
+   50 case: CASE INT_LITERAL ARROW statements •
 
     error         shift, and go to state 32
     IDENTIFIER    shift, and go to state 33
@@ -1964,8 +1973,11 @@ State 148
     IF            shift, and go to state 40
     SWITCH        shift, and go to state 42
     WHEN          shift, and go to state 43
-    ';'           shift, and go to state 153
     '('           shift, and go to state 44
+
+    CASE       reduce using rule 50 (case)
+    ENDSWITCH  reduce using rule 50 (case)
+    OTHERS     reduce using rule 50 (case)
 
     statement_        go to state 45
     statement         go to state 46
@@ -1983,7 +1995,7 @@ State 149
 
    32 switch_statement: SWITCH expression IS cases OTHERS ARROW statement ';' • ENDSWITCH
 
-    ENDSWITCH  shift, and go to state 154
+    ENDSWITCH  shift, and go to state 153
 
 
 State 150
@@ -2035,13 +2047,6 @@ State 152
 
 
 State 153
-
-   50 case: CASE INT_LITERAL ARROW statements ';' •
-
-    $default  reduce using rule 50 (case)
-
-
-State 154
 
    32 switch_statement: SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH •
 

@@ -60,6 +60,7 @@ double result;
 %type <value> expression term factor primary relation condition logical_and logical_not
 %type <oper> operator
 
+%type <list> vector
 %type <list> list expressions
 
 %type <value> direction
@@ -117,18 +118,30 @@ optional_variable:
 	optional_variable error |
 	%empty ;
     
-variable:	
-	IDENTIFIER ':' type IS statement ';' {scalars.insert($1, $5);}; |
-	IDENTIFIER ':' LIST OF type IS list ';' {lists.insert($1, $7);} ;
+variable:
+	IDENTIFIER ':' type IS expression ';' {
+		scalars.insert($1, $5);
+	} |
+	IDENTIFIER ':' LIST OF type IS list ';' {
+		lists.insert($1, $7);
+	};
 
 
 list:
 	'(' expressions ')'  {$$ = $2;};
 
-expressions:
-	expressions ',' expression| 
-	expression ;
+vector:
+       '(' ')' { $$ = new vector<double>(); };
 
+expressions:
+	expressions ',' expression { 
+		$1->push_back($3); 
+		$$ = $1; 
+	    } |
+	    expression { 
+		$$ = new vector<double>(); 
+		$$->push_back($1); 
+	    };
 body:
 	BEGIN_ statements END ';' {$$  = $2;} ;
 
@@ -188,7 +201,7 @@ cases:
 	%empty {$$ = NAN;} ;
 	
 case:
-	CASE INT_LITERAL ARROW statements ';' {$$ = $<value>-2 == $2 ? $4 : NAN; } |
+	CASE INT_LITERAL ARROW statements {$$ = $<value>-2 == $2 ? $4 : NAN; } |
 	CASE error ARROW statements ';' | 
 	CASE INT_LITERAL ARROW error ';' ;
 
@@ -209,6 +222,7 @@ logical_not:
 relation:
 	'(' condition ')' {$$ = $2;}|
 	expression RELOP expression {$$ = evaluateRelational($1, $2, $3);};
+
 expression:
 	expression operator term {$$ = evaluateArithmetic($1, $2, $3);} |
 	term ; 
@@ -224,14 +238,17 @@ factor:
       
 
 primary:
-	'(' expression ')' {$$ = $2;} |
-	NEGOP primary |
-	INT_LITERAL |
-	CHAR_LITERAL |
-	REAL_LITERAL |
-	HEX_LITERAL |
-	IDENTIFIER '(' expression ')' {$$ = extract_element($1, $3);}|
-	IDENTIFIER {if (!scalars.find($1, $$)) appendError(UNDECLARED_IDENTIFIER, $1);};
+    '(' expression ')' { $$ = $2; } |
+    NEGOP primary       { $$ = -$2; } |
+    INT_LITERAL         { $$ = $1; } |
+    CHAR_LITERAL        { $$ = $1; } |
+    REAL_LITERAL        { $$ = $1; } |
+    HEX_LITERAL         { $$ = $1; } |
+    IDENTIFIER '(' expression ')' { $$ = extract_element($1, $3); } |
+    IDENTIFIER {
+        if (!scalars.find($1, $$))
+            appendError(UNDECLARED_IDENTIFIER, $1);
+    };
 
 %%
 
