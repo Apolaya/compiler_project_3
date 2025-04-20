@@ -146,7 +146,9 @@ body:
 	BEGIN_ statements END ';' {$$  = $2;} ;
 
 statements:
-	statements statement_ | %empty ;
+	statements statement_ { $$ = $2 ;} |
+	statement_ { $$ = $1;} |
+	%empty ;
 
 statement_:
 	statement ';' |
@@ -268,6 +270,9 @@ double extract_element(CharPtr list_name, double subscript) {
 int main(int argc, char *argv[]) {
 	firstLine();
 	yyparse();
+	if (getTotalErrors() == 0)
+        printf("Result = %.2f\n", result);
+
 	lastLine();
 	return 0;
 } 

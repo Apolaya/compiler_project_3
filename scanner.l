@@ -16,6 +16,9 @@ using namespace std;
 #include "listing.h"
 #include "tokens.h"
 
+int hexToInt(const char* text);
+char convertEscapeChar(const char* text);
+
 
 %}
 
@@ -91,11 +94,31 @@ then		{ ECHO; return(THEN); }
 {real}  { ECHO; yylval.value = atof(yytext); return (REAL_LITERAL); }
 {id}		{ ECHO; yylval.iden = (CharPtr)malloc(yyleng + 1); 			strcpy(yylval.iden, yytext); return(IDENTIFIER);}
 
+{char} { ECHO; yylval.value = convertEscapeChar(yytext); return(CHAR_LITERAL);}
 {dec}		{ ECHO; yylval.value = atoi(yytext); return(INT_LITERAL); }
-{char}		{ ECHO; yylval.value = yytext[1]; return(CHAR_LITERAL); }
-
-{hex}		{ ECHO; return(HEX_LITERAL);}
+{hex}  { ECHO; yylval.value = hexToInt(yytext); return (HEX_LITERAL); }
 {punc}		{ ECHO; return(yytext[0]); }
 .		{ ECHO; appendError(LEXICAL, yytext); }
 %%
 
+int hexToInt(const char* text) {
+    int result = 0;
+    sscanf(text + 1, "%x", &result); 
+    return result;
+}
+char convertEscapeChar(const char* text) {
+    if (text[1] != '\\') return text[1];
+
+    switch (text[2]) {
+        case 'n': return '\n';
+        case 't': return '\t';
+        case 'r': return '\r';
+        case 'b': return '\b';
+        case 'f': return '\f';
+        case '\'': return '\''; 
+        case '\\': return '\\'; 
+        default:
+            appendError(LEXICAL, "Unknown escape sequence");
+            return '?';
+    }
+}

@@ -15,6 +15,7 @@ enum ErrorCategories {LEXICAL, SYNTAX, GENERAL_SEMANTIC, DUPLICATE_IDENTIFIER,
 	UNDECLARED_IDENTIFIER, SEMANTIC};
 
 
+int getTotalErrors();
 void firstLine();
 void nextLine();
 int lastLine();

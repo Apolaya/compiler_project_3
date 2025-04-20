@@ -35,6 +35,10 @@ std::vector<std::string> errorMessages;
 
 static void displayErrors();
 
+int getTotalErrors() {
+    return totalErrors;
+}
+
 void firstLine()
 {
 	lineNumber = 1;
