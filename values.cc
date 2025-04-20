@@ -34,5 +34,6 @@ double evaluateRelational(double left, Operators operator_, double right) {
 			break;
 	}
 	return result;
-}
+
+} 
 

@@ -115,3 +115,7 @@ void displayErrors()
 
 	}
 }
+void yyerror (const char*msg) {
+		appendError(SYNTAX, msg);
+	}
+

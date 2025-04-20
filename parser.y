@@ -137,7 +137,7 @@ statements:
 
 statement_:
 	statement ';' |
-	error ';'  {$$ = 0} ;
+	error ';'  {$$ = 0;} ;
     
 statement:
 	expression |
@@ -151,7 +151,7 @@ switch_statement:
     SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH {$$ = !isnan($4) ? $4 : $7;} ;  
 
 when_statement:
-	WHEN condition ',' expression ':' expression {$$ = $2 ? $4 : $6} ;
+	WHEN condition ',' expression ':' expression {$$ = $2 ? $4 : $6;} ;
 
 
 fold_statement:
@@ -208,18 +208,18 @@ logical_not:
 
 relation:
 	'(' condition ')' {$$ = $2;}|
-	expression RELOP expression {$$ = evaluateRelational($1, $2, $3)};
+	expression RELOP expression {$$ = evaluateRelational($1, $2, $3);};
 expression:
-	expression operator term {$$ = evaluateArithmetric($1, $2, $3);} |
+	expression operator term {$$ = evaluateArithmetic($1, $2, $3);} |
 	term ; 
 
 term:
-	term MULOP factor {$$ = evaluateArtithmetric($1, $2, $3 );}|
-	term REMOP factor {$$ = evaluateArtithmetric($1, $2, $3 );}|
+	term MULOP factor {$$ = evaluateArithmetic($1, $2, $3 );}|
+	term REMOP factor {$$ = evaluateArithmetic($1, $2, $3 );}|
 	factor ; 
 
 factor:       
-	factor EXPOP primary {$$ = evaluateArithmetric($1, $2,$3 ); } |
+	factor EXPOP primary {$$ = evaluateArithmetic($1, $2,$3 ); } |
 	primary ;
       
 
@@ -230,14 +230,23 @@ primary:
 	CHAR_LITERAL |
 	REAL_LITERAL |
 	HEX_LITERAL |
-	IDENTIFIER '(' expression ')' {$$ = ectract_element($1, $3);}|
-	IDENTIFIER {if (!scalars.find($1, $$)) appendError(UNDECLARED, $1);};
+	IDENTIFIER '(' expression ')' {$$ = extract_element($1, $3);}|
+	IDENTIFIER {if (!scalars.find($1, $$)) appendError(UNDECLARED_IDENTIFIER, $1);};
 
 %%
 
-void yyerror(const char* ssage) {
-	appendError(SYNTAX, message);
+void yyerror(const char* msg) {
+	appendError(SYNTAX, msg);
 }
+
+double extract_element(CharPtr list_name, double subscript) {
+	vector<double>* list; 
+	if (lists.find(list_name, list))
+		return (*list)[subscript];
+	appendError(UNDECLARED_IDENTIFIER, list_name);
+	return NAN;
+}
+
 
 int main(int argc, char *argv[]) {
 	firstLine();

@@ -88,8 +88,7 @@ right		{ ECHO; return(RIGHT); }
 then		{ ECHO; return(THEN); }
 
 
-{real}		{ ECHO; yylval.realval = atof(yytext); return (REAL_LITERAL); }
-
+{real}  { ECHO; yylval.value = atof(yytext); return (REAL_LITERAL); }
 {id}		{ ECHO; yylval.iden = (CharPtr)malloc(yyleng + 1); 			strcpy(yylval.iden, yytext); return(IDENTIFIER);}
 
 {dec}		{ ECHO; yylval.value = atoi(yytext); return(INT_LITERAL); }
