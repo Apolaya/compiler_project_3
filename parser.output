@@ -16,7 +16,6 @@ Rules useless in parser due to conflicts
 State 14 conflicts: 12 shift/reduce
 State 63 conflicts: 1 shift/reduce
 State 90 conflicts: 12 shift/reduce
-State 110 conflicts: 1 shift/reduce
 State 131 conflicts: 12 shift/reduce
 State 143 conflicts: 12 shift/reduce
 State 144 conflicts: 12 shift/reduce
@@ -1514,7 +1513,6 @@ State 110
 
     ANDOP  shift, and go to state 91
 
-    ANDOP     [reduce using rule 55 (condition)]
     $default  reduce using rule 55 (condition)
 
 

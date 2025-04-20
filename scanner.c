@@ -366,11 +366,11 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[146] =
     {   0,
-        0,    0,   53,   51,    1,    3,   20,   51,   11,    8,
-       51,   50,    7,    4,    5,   51,    6,   48,   13,   15,
-       14,   46,    9,   46,   46,   46,   46,   46,   46,   46,
-       46,   46,   46,   46,   19,   10,    1,   49,    0,    0,
-        0,   45,    0,   48,   18,   16,   12,   17,   46,    0,
+        0,    0,   53,   51,    1,    3,   19,   51,   10,   20,
+       51,   50,    7,    4,    5,   51,    6,   48,   12,   14,
+       13,   46,    8,   46,   46,   46,   46,   46,   46,   46,
+       46,   46,   46,   46,   18,    9,    1,   49,    0,    0,
+        0,   45,    0,   48,   17,   15,   11,   16,   46,    0,
        46,   46,   46,   46,   46,   46,   46,   40,   46,   29,
        46,   46,   31,   46,   46,   46,   46,   46,   46,   47,
         0,    2,    0,    0,   46,   46,   46,   46,   24,   46,
@@ -897,67 +897,67 @@ YY_RULE_SETUP
 case 8:
 YY_RULE_SETUP
 #line 49 "scanner.l"
-{ ECHO; yylval.oper = AND ; return(ANDOP); }
+{ ECHO; yylval.oper = EXPONENT ; return (EXPOP);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 50 "scanner.l"
-{ ECHO; yylval.oper = EXPONENT ; return (EXPOP);}
+{ ECHO; yylval.oper = NEGATE ; return (NEGOP);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 51 "scanner.l"
-{ ECHO; yylval.oper = NEGATE ; return (NEGOP);}
+{ ECHO; yylval.oper = REMAINDER ; return (REMOP);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 52 "scanner.l"
-{ ECHO; yylval.oper = REMAINDER ; return (REMOP);}
+#line 54 "scanner.l"
+{ ECHO; return(ARROW); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 55 "scanner.l"
-{ ECHO; return(ARROW); }
+#line 56 "scanner.l"
+{ ECHO; yylval.oper = LESS ; return(RELOP); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 57 "scanner.l"
-{ ECHO; yylval.oper = LESS ; return(RELOP); }
+{ ECHO; yylval.oper = GREATER ;return(RELOP); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 58 "scanner.l"
-{ ECHO; yylval.oper = GREATER ;return(RELOP); }
+{ ECHO; yylval.oper = EQUAL ;return(RELOP); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 59 "scanner.l"
-{ ECHO; yylval.oper = EQUAL ;return(RELOP); }
+{ ECHO; yylval.oper = NOTEQUAL ;return(RELOP); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 60 "scanner.l"
-{ ECHO; yylval.oper = NOTEQUAL ;return(RELOP); }
+{ ECHO; yylval.oper = GREATEREQUAL ; return(RELOP); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 61 "scanner.l"
-{ ECHO; yylval.oper = GREATEREQUAL ; return(RELOP); }
+{ ECHO; yylval.oper = LESSEQUAL ; return(RELOP); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 62 "scanner.l"
-{ ECHO; yylval.oper = LESSEQUAL ; return(RELOP); }
+#line 63 "scanner.l"
+{ ECHO; yylval.oper = OR ;return(OROP);  }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 64 "scanner.l"
-{ ECHO; yylval.oper = OR ;return(OROP);  }
+{ ECHO; yylval.oper = NOT ; return(NOTOP); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 65 "scanner.l"
-{ ECHO; yylval.oper = NOT ; return(NOTOP); }
+{ ECHO; yylval.oper = AND ; return(ANDOP); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP

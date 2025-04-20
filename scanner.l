@@ -46,7 +46,6 @@ real		[0-9]*\.[0-9]+([eE][+-]?[0-9]+)?
 "-"		{ ECHO; yylval.oper = SUBTRACT; return(ADDOP); }
 "/"		{ ECHO; yylval.oper = DIVIDE ; return (MULOP);}
 "*"		{ ECHO; yylval.oper = MULTIPLY ; return(MULOP); }
-"&"		{ ECHO; yylval.oper = AND ; return(ANDOP); }
 "^"		{ ECHO; yylval.oper = EXPONENT ; return (EXPOP);}
 "~"		{ ECHO; yylval.oper = NEGATE ; return (NEGOP);}
 "%"		{ ECHO; yylval.oper = REMAINDER ; return (REMOP);}
@@ -63,6 +62,7 @@ real		[0-9]*\.[0-9]+([eE][+-]?[0-9]+)?
 
 "|"		{ ECHO; yylval.oper = OR ;return(OROP);  }
 "!"		{ ECHO; yylval.oper = NOT ; return(NOTOP); }
+"&"		{ ECHO; yylval.oper = AND ; return(ANDOP); }
 
 begin		{ ECHO; return(BEGIN_); }
 case		{ ECHO; return(CASE); }

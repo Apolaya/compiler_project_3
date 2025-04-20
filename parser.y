@@ -88,6 +88,9 @@ double result;
 %left ADDOP
 %left MULOP REMOP
 
+%left OROP
+%left ANDOP 
+%right NOTOP
 
 
 %%
@@ -186,8 +189,13 @@ operand:
        list | IDENTIFIER;
 
 
-if_statement:  
-	IF condition THEN statements elsif_clauses optional_else ENDIF;
+if_statement:
+	IF condition THEN statements elsif_clauses optional_else ENDIF
+	{
+		if ($2) $$ = $4;
+		else if (!isnan($5)) $$ = $5;
+		else $$ = $6;
+	};
 
 elsif_clauses:
 	elsif_clauses elsif_clause |
@@ -214,15 +222,15 @@ case:
 
 condition:
 	condition ANDOP relation {$$ = $1 && $2;} |
-	condition OROP logical_and |
+	condition OROP logical_and {$$ = $1 && $3;} |
 	logical_and ;
 
 logical_and:
-	logical_and ANDOP logical_not |
+	logical_and ANDOP logical_not {$$ = $1 && $3; }|
 	logical_not ;
 
 logical_not:
-	NOTOP logical_not |
+	NOTOP logical_not {$$ = !$2; } |
 	relation
 
 relation:
