@@ -39,3 +39,6 @@ double evaluateRelational(double left, Operators operator_, double right) {
             return false;
     }
 }
+double evaluateNegation(double value){
+    return -value;
+}

@@ -84,6 +84,10 @@ double result;
 %type <value> function_header
 %type <value> function
 
+%right EXPOP 
+%left ADDOP
+%left MULOP REMOP
+
 
 
 %%
@@ -226,32 +230,30 @@ relation:
 	expression RELOP expression {$$ = evaluateRelational($1, $2, $3);};
 
 expression:
-	expression operator term {$$ = evaluateArithmetic($1, $2, $3);} |
-	term ; 
+    expression ADDOP term   { $$ = evaluateArithmetic($1, $2, $3); }
+  | term;
 
 term:
-	term MULOP factor {$$ = evaluateArithmetic($1, $2, $3 );}|
-	term REMOP factor {$$ = evaluateArithmetic($1, $2, $3 );}|
-	factor ; 
+    term MULOP factor       { $$ = evaluateArithmetic($1, $2, $3); }
+  | term REMOP factor       { $$ = evaluateArithmetic($1, REMAINDER, $3); }
+  | factor;
 
-factor:       
-	factor EXPOP primary {$$ = evaluateArithmetic($1, $2,$3 ); } |
-	primary ;
-      
+factor:
+    primary |
+    primary EXPOP factor { $$ = evaluateArithmetic($1, EXPONENT, $3); } ;
 
 primary:
-    '(' expression ')' { $$ = $2; } |
-    NEGOP primary       { $$ = -$2; } |
-    INT_LITERAL         { $$ = $1; } |
-    CHAR_LITERAL        { $$ = $1; } |
-    REAL_LITERAL        { $$ = $1; } |
-    HEX_LITERAL         { $$ = $1; } |
-    IDENTIFIER '(' expression ')' { $$ = extract_element($1, $3); } |
-    IDENTIFIER {
+    NEGOP primary           { $$ = evaluateNegation($2); }
+  | '(' expression ')'      { $$ = $2; }
+  | INT_LITERAL             { $$ = $1; }
+  | CHAR_LITERAL            { $$ = $1; }
+  | REAL_LITERAL            { $$ = $1; }
+  | HEX_LITERAL             { $$ = $1; }
+  | IDENTIFIER '(' expression ')' { $$ = extract_element($1, $3); }
+  | IDENTIFIER {
         if (!scalars.find($1, $$))
             appendError(UNDECLARED_IDENTIFIER, $1);
     };
-
 %%
 
 void yyerror(const char* msg) {
