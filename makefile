@@ -1,6 +1,6 @@
-compile: scanner.o parser.o listing.o
-	g++ -o compile scanner.o parser.o listing.o
-	
+compile: scanner.o parser.o listing.o values.o
+	g++ -o compile scanner.o parser.o listing.o values.o
+
 scanner.o: scanner.c listing.h tokens.h
 	g++ -c scanner.c
 
@@ -16,6 +16,9 @@ parser.c tokens.h: parser.y
 	mv parser.tab.c parser.c
 	cp parser.tab.h tokens.h
 
+values.o: values.cc values.h listing.h
+	g++ -c values.cc
+
 listing.o: listing.cc listing.h
 	g++ -c listing.cc
 
@@ -23,4 +26,3 @@ clean:
 	rm -f compile *.o scanner.c parser.c tokens.h parser.output lex.yy.c
 
 .PHONY: clean
-

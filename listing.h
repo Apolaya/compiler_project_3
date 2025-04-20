@@ -12,7 +12,7 @@
 //
 #include <iostream>
 enum ErrorCategories {LEXICAL, SYNTAX, GENERAL_SEMANTIC, DUPLICATE_IDENTIFIER,
-	UNDECLARED_IDENTIFIER};
+	UNDECLARED_IDENTIFIER, SEMANTIC};
 
 
 void firstLine();

@@ -14,26 +14,28 @@ using namespace std;
 #include "listing.h"
 
 double evaluateArithmetic(double left, Operators operator_, double right) {
-	double result;
-	switch (operator_) {
-		case ADD:
-			result = left + right;
-			break;
-		case MULTIPLY:
-			result = left * right;
-			break;
-	}
-	return result;
+    switch (operator_) {
+        case ADD: return left + right;
+        case SUBTRACT: return left - right;
+        case MULTIPLY: return left * right;
+        case DIVIDE: return right != 0 ? left / right : NAN;
+        case REMAINDER: return fmod(left, right);
+        case EXPONENT: return pow(left, right);
+        default:
+            appendError(SEMANTIC, "Unsupported arithmetic operator.");
+            return NAN;
+    }
 }
-
 double evaluateRelational(double left, Operators operator_, double right) {
-	double result;
-	switch (operator_) {
-		case LESS:
-			result = left < right;
-			break;
-	}
-	return result;
-
-} 
-
+    switch (operator_) {
+        case LESS: return left < right;
+        case GREATER: return left > right;
+        case EQUAL: return left == right;
+        case NOTEQUAL: return left != right;
+        case LESSEQUAL: return left <= right;
+        case GREATEREQUAL: return left >= right;
+        default:
+            appendError(SEMANTIC, "Unsupported relational operator.");
+            return false;
+    }
+}
