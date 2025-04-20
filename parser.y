@@ -198,16 +198,15 @@ if_statement:
 	};
 
 elsif_clauses:
-	elsif_clauses elsif_clause |
-	%empty ;
+	elsif_clauses elsif_clause { $$ = !isnan($1) ? $1 : $2; } |
+	%empty { $$ = NAN; };
 
 elsif_clause:
-	ELSIF condition THEN statements ;
+	ELSIF condition THEN statements { $$ = $2 ? $4 : NAN; };
 
 optional_else:
-	ELSE statements |
-	%empty;
-
+	ELSE statements { $$ = $2; } |
+	%empty { $$ = NAN; };
 
 
 cases:
