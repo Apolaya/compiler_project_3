@@ -49,7 +49,7 @@ Grammar
    14                  | optional_variable error
    15                  | ε
 
-   16 variable: IDENTIFIER ':' type IS expression ';'
+   16 variable: IDENTIFIER ':' type IS statement ';'
    17         | IDENTIFIER ':' LIST OF type IS list ';'
 
    18 list: '(' expressions ')'
@@ -154,18 +154,18 @@ Terminals, with rules where they appear
     HEX_LITERAL <value> (261) 75
     REAL <value> (262) 12
     REAL_LITERAL <value> (263) 74
-    ADDOP <oper> (264) 38 63
-    MULOP <oper> (265) 39 65
-    ANDOP <oper> (266) 54 57
-    RELOP <oper> (267) 40 62
-    ARROW <oper> (268) 33 51 52 53
-    REMOP <oper> (269) 66
-    EXPOP <oper> (270) 69
-    NEGOP <oper> (271) 70
-    OROP <oper> (272) 55
-    NOTOP <oper> (273) 59
-    LEFT (274) 36
-    RIGHT (275) 37
+    LEFT <value> (264) 36
+    RIGHT <value> (265) 37
+    ADDOP <oper> (266) 38 63
+    MULOP <oper> (267) 39 65
+    ANDOP <oper> (268) 54 57
+    RELOP <oper> (269) 40 62
+    ARROW <oper> (270) 33 51 52 53
+    REMOP <oper> (271) 66
+    EXPOP <oper> (272) 69
+    NEGOP <oper> (273) 70
+    OROP <oper> (274) 55
+    NOTOP <oper> (275) 59
     ELSIF (276) 46
     ENDFOLD (277) 35
     FOLD (278) 35
@@ -234,7 +234,7 @@ Nonterminals, with rules where they appear
         on right: 22 23
     statement <value> (61)
         on left: 27 28 29 30 31
-        on right: 25 33
+        on right: 16 25 33
     switch_statement <value> (62)
         on left: 32 33
         on right: 31
@@ -250,7 +250,7 @@ Nonterminals, with rules where they appear
     operator <oper> (66)
         on left: 38 39 40
         on right: 35
-    operand <value> (67)
+    operand <list> (67)
         on left: 41 42
         on right: 35
     if_statement <value> (68)
@@ -285,7 +285,7 @@ Nonterminals, with rules where they appear
         on right: 54 60
     expression <value> (78)
         on left: 63 64
-        on right: 16 19 20 27 32 33 34 62 63 71 76
+        on right: 19 20 27 32 33 34 62 63 71 76
     term <value> (79)
         on left: 65 66 67
         on right: 63 64 65 66
@@ -416,7 +416,7 @@ State 12
 
 State 13
 
-   16 variable: IDENTIFIER • ':' type IS expression ';'
+   16 variable: IDENTIFIER • ':' type IS statement ';'
    17         | IDENTIFIER • ':' LIST OF type IS list ';'
 
     ':'  shift, and go to state 22
@@ -527,7 +527,7 @@ State 21
 
 State 22
 
-   16 variable: IDENTIFIER ':' • type IS expression ';'
+   16 variable: IDENTIFIER ':' • type IS statement ';'
    17         | IDENTIFIER ':' • LIST OF type IS list ';'
 
     REAL       shift, and go to state 46
@@ -854,7 +854,7 @@ State 52
 
 State 53
 
-   16 variable: IDENTIFIER ':' type • IS expression ';'
+   16 variable: IDENTIFIER ':' type • IS statement ';'
 
     IS  shift, and go to state 79
 
@@ -1142,7 +1142,7 @@ State 78
 
 State 79
 
-   16 variable: IDENTIFIER ':' type IS • expression ';'
+   16 variable: IDENTIFIER ':' type IS • statement ';'
 
     IDENTIFIER    shift, and go to state 24
     INT_LITERAL   shift, and go to state 25
@@ -1150,12 +1150,21 @@ State 79
     HEX_LITERAL   shift, and go to state 27
     REAL_LITERAL  shift, and go to state 28
     NEGOP         shift, and go to state 29
+    FOLD          shift, and go to state 30
+    IF            shift, and go to state 31
+    SWITCH        shift, and go to state 32
+    WHEN          shift, and go to state 33
     '('           shift, and go to state 34
 
-    expression  go to state 102
-    term        go to state 43
-    factor      go to state 44
-    primary     go to state 45
+    statement         go to state 102
+    switch_statement  go to state 38
+    when_statement    go to state 39
+    fold_statement    go to state 40
+    if_statement      go to state 41
+    expression        go to state 42
+    term              go to state 43
+    factor            go to state 44
+    primary           go to state 45
 
 
 State 80
@@ -1438,11 +1447,9 @@ State 101
 
 State 102
 
-   16 variable: IDENTIFIER ':' type IS expression • ';'
-   63 expression: expression • ADDOP term
+   16 variable: IDENTIFIER ':' type IS statement • ';'
 
-    ADDOP  shift, and go to state 73
-    ';'    shift, and go to state 117
+    ';'  shift, and go to state 117
 
 
 State 103
@@ -1601,7 +1608,7 @@ State 116
 
 State 117
 
-   16 variable: IDENTIFIER ':' type IS expression ';' •
+   16 variable: IDENTIFIER ':' type IS statement ';' •
 
     $default  reduce using rule 16 (variable)
 

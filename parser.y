@@ -31,6 +31,10 @@ Symbols<double> scalars;
 Symbols<vector<double>*> lists;
 double result;
 
+double* paramValues;
+int paramIndex = -1; 
+
+
 
 %}
 
@@ -41,16 +45,16 @@ double result;
 	Operators oper;
 	double value;
 	vector<double>* list;
+	int dir;
 }
 
 %token <iden> IDENTIFIER
 
-%token <value> INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL
+%token <value> INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL LEFT RIGHT
 
 %token <oper>  ADDOP MULOP ANDOP RELOP ARROW REMOP EXPOP NEGOP OROP NOTOP
 
 
-%token LEFT RIGHT 
 
 %token ELSIF ENDFOLD FOLD IF THEN ENDIF
 
@@ -65,7 +69,7 @@ double result;
 
 %type <value> direction
 
-%type <value> operand
+%type <list> operand
 
 %type <value> case cases
 %type <value> if_statement elsif_clauses elsif_clause optional_else
@@ -111,8 +115,15 @@ parameter_list:
 	parameter_list ',' parameter |
 	parameter_list error ;
 
-parameter: 
-	IDENTIFIER ':' type ;
+parameter:
+	IDENTIFIER ':' type {
+		if (paramValues)
+			scalars.insert($1, paramValues[paramIndex++]);
+		else {
+			appendError(GENERAL_SEMANTIC, "Missing parameter value for function.");
+			scalars.insert($1, 0);
+		}
+	};
 
 type:
 	INTEGER |
@@ -126,13 +137,14 @@ optional_variable:
 	%empty ;
     
 variable:
-	IDENTIFIER ':' type IS expression ';' {
-		scalars.insert($1, $5);
-	} |
-	IDENTIFIER ':' LIST OF type IS list ';' {
-		lists.insert($1, $7);
-	};
-
+   IDENTIFIER ':' type IS statement ';'
+   {
+       scalars.insert($1, $5);
+   } |
+   IDENTIFIER ':' LIST OF type IS list ';'
+   {
+       lists.insert($1, $7);
+   } ;
 
 list:
 	'(' expressions ')'  {$$ = $2;};
@@ -177,17 +189,33 @@ when_statement:
 
 
 fold_statement:
-	FOLD direction operator operand ENDFOLD;
+    FOLD direction operator operand ENDFOLD
+    {
+        int dir = (int) (yyvsp[-3].value);
+        /* $3.oper is your Operators enum, $4.list is the vector<double>* */
+        (yyval.value) = evaluateFold(dir, (yyvsp[-2].oper), * (yyvsp[-1].list));
+    };
 
 direction:
-	LEFT | RIGHT ;
+	LEFT { $$ = 0.0; } |
+	RIGHT { $$ = 1.0; }  ;
 
 operator: 
 	ADDOP | MULOP | RELOP;
 
-operand: 
-       list | IDENTIFIER;
-
+operand:
+    list {
+        $$ = $1;
+    } | 
+    IDENTIFIER {
+        vector<double>* lst;
+        if (!lists.find($1, lst)) {
+            appendError(UNDECLARED_IDENTIFIER, $1);
+            $$ = new vector<double>();
+        } else {
+            $$ = lst;
+        }
+    } ;
 
 if_statement:
 	IF condition THEN statements elsif_clauses optional_else ENDIF
@@ -274,14 +302,25 @@ double extract_element(CharPtr list_name, double subscript) {
 	appendError(UNDECLARED_IDENTIFIER, list_name);
 	return NAN;
 }
-
-
 int main(int argc, char *argv[]) {
 	firstLine();
+
+	if (argc > 1) {
+		paramValues = new double[argc - 1];
+		for (int i = 1; i < argc; i++)
+			paramValues[i - 1] = atof(argv[i]);
+		paramIndex = 0; // ✅ set after values are loaded
+	} else {
+		paramValues = nullptr;
+		paramIndex = 0;  // still set for consistency
+	}
+
 	yyparse();
+
 	if (getTotalErrors() == 0)
-        printf("Result = %.2f\n", result);
+		printf("Result = %.2f\n", result);
 
 	lastLine();
+	delete[] paramValues;
 	return 0;
-} 
+}

@@ -60,18 +60,18 @@ extern int yydebug;
     HEX_LITERAL = 261,             /* HEX_LITERAL  */
     REAL = 262,                    /* REAL  */
     REAL_LITERAL = 263,            /* REAL_LITERAL  */
-    ADDOP = 264,                   /* ADDOP  */
-    MULOP = 265,                   /* MULOP  */
-    ANDOP = 266,                   /* ANDOP  */
-    RELOP = 267,                   /* RELOP  */
-    ARROW = 268,                   /* ARROW  */
-    REMOP = 269,                   /* REMOP  */
-    EXPOP = 270,                   /* EXPOP  */
-    NEGOP = 271,                   /* NEGOP  */
-    OROP = 272,                    /* OROP  */
-    NOTOP = 273,                   /* NOTOP  */
-    LEFT = 274,                    /* LEFT  */
-    RIGHT = 275,                   /* RIGHT  */
+    LEFT = 264,                    /* LEFT  */
+    RIGHT = 265,                   /* RIGHT  */
+    ADDOP = 266,                   /* ADDOP  */
+    MULOP = 267,                   /* MULOP  */
+    ANDOP = 268,                   /* ANDOP  */
+    RELOP = 269,                   /* RELOP  */
+    ARROW = 270,                   /* ARROW  */
+    REMOP = 271,                   /* REMOP  */
+    EXPOP = 272,                   /* EXPOP  */
+    NEGOP = 273,                   /* NEGOP  */
+    OROP = 274,                    /* OROP  */
+    NOTOP = 275,                   /* NOTOP  */
     ELSIF = 276,                   /* ELSIF  */
     ENDFOLD = 277,                 /* ENDFOLD  */
     FOLD = 278,                    /* FOLD  */
@@ -101,14 +101,15 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 39 "parser.y"
+#line 43 "parser.y"
 
 	CharPtr iden;
 	Operators oper;
 	double value;
 	vector<double>* list;
+	int dir;
 
-#line 112 "parser.tab.h"
+#line 113 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

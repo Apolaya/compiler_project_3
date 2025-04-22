@@ -42,3 +42,21 @@ double evaluateRelational(double left, Operators operator_, double right) {
 double evaluateNegation(double value){
     return -value;
 }
+double evaluateFold(int dir, Operators op, const vector<double>& vals) {
+    if (vals.empty()) {
+        appendError(GENERAL_SEMANTIC, "Fold on empty list");
+        return 0.0;
+    }
+    if (dir == 0) {                // 0 means “LEFT”
+        double acc = vals[0];
+        for (size_t i = 1; i < vals.size(); ++i)
+            acc = evaluateArithmetic(acc, op, vals[i]);
+        return acc;
+    }
+    else {                         
+        double acc = vals.back();
+        for (size_t i = vals.size() - 1; i-- > 0; )
+            acc = evaluateArithmetic(vals[i], op, acc);
+        return acc;
+    }
+}
