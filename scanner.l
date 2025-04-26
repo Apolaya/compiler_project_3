@@ -12,9 +12,11 @@
 #include <string>
 
 using namespace std;
+
 #include "values.h"
 #include "listing.h"
 #include "tokens.h"
+#include "types.h"
 
 int hexToInt(const char* text);
 char convertEscapeChar(const char* text);
@@ -91,12 +93,15 @@ right		{ ECHO; return(RIGHT); }
 then		{ ECHO; return(THEN); }
 
 
-{real}  { ECHO; yylval.value = atof(yytext); return (REAL_LITERAL); }
-{id}		{ ECHO; yylval.iden = (CharPtr)malloc(yyleng + 1); 			strcpy(yylval.iden, yytext); return(IDENTIFIER);}
+{real}          { ECHO; yylval.value = atof(yytext); return (REAL_LITERAL); }
+{id}		{ 
+                ECHO; yylval.iden = (CharPtr)malloc(yyleng + 1);  
+                strcpy(yylval.iden, yytext); return(IDENTIFIER);
+                }
 
-{char} { ECHO; yylval.value = convertEscapeChar(yytext); return(CHAR_LITERAL);}
+{char}          { ECHO; yylval.value = convertEscapeChar(yytext); return(CHAR_LITERAL);}
 {dec}		{ ECHO; yylval.value = atoi(yytext); return(INT_LITERAL); }
-{hex}  { ECHO; yylval.value = hexToInt(yytext); return (HEX_LITERAL); }
+{hex}           { ECHO; yylval.value = hexToInt(yytext); return (HEX_LITERAL); }
 {punc}		{ ECHO; return(yytext[0]); }
 .		{ ECHO; appendError(LEXICAL, yytext); }
 %%

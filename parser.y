@@ -21,6 +21,7 @@ using namespace std;
 #include "values.h"
 #include "listing.h"
 #include "symbols.h"
+#include "types.h"
 
 
 int yylex();
@@ -29,6 +30,14 @@ double extract_element(CharPtr list_name, double subscript);
 
 Symbols<double> scalars;
 Symbols<vector<double>*> lists;
+//projec4 symbol types 
+Types find(Symbols<Types>& table, CharPtr identifier, string tableName);
+
+
+Symbols<Types> symbols;
+Symbols<Types> lists;
+
+
 double result;
 
 double* paramValues;
@@ -46,47 +55,39 @@ int paramIndex = -1;
 	double value;
 	vector<double>* list;
 	int dir;
+	//project4
+	Types type;
 }
+
+%token ELSIF ENDFOLD FOLD IF THEN ENDIF
+%token BEGIN_ CASE CHARACTER ELSE END ENDSWITCH FUNCTION INTEGER IS LIST OF OTHERS RETURNS SWITCH WHEN
 
 %token <iden> IDENTIFIER
 
-%token <value> INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL LEFT RIGHT
-
 %token <oper>  ADDOP MULOP ANDOP RELOP ARROW REMOP EXPOP NEGOP OROP NOTOP
-
-
-
-%token ELSIF ENDFOLD FOLD IF THEN ENDIF
-
-%token BEGIN_ CASE CHARACTER ELSE END ENDSWITCH FUNCTION INTEGER IS LIST OF OTHERS RETURNS SWITCH WHEN
-
-
-%type <value> expression term factor primary relation condition logical_and logical_not
 %type <oper> operator
 
-%type <list> vector
-%type <list> list expressions
-
+//union changed from value ->type projec4
+%token <type> INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL LEFT RIGHT
+%type <value> expression term factor primary relation condition logical_and logical_not
 %type <value> direction
-
-%type <list> operand
-
 %type <value> case cases
 %type <value> if_statement elsif_clauses elsif_clause optional_else
 %type <value> switch_statement when_statement
 %type <value> fold_statement
-
 %type <value> statement
 %type <value> statement_
 %type <value> statements
 %type <value> body
-
 %type <value> variable optional_variable
-
 %type <value> type
 %type <value> parameter parameter_list parameters
 %type <value> function_header
 %type <value> function
+
+%type <list> vector
+%type <list> list expressions
+%type <list> operand
 
 %right EXPOP 
 %left ADDOP
@@ -138,13 +139,14 @@ optional_variable:
     
 variable:
    IDENTIFIER ':' type IS statement ';'
-   {
-       scalars.insert($1, $5);
-   } |
+			{
+			checkAssignment($3,$5, "Variable Initialization");
+			scalars.insert($1, $5);
+			} |
    IDENTIFIER ':' LIST OF type IS list ';'
-   {
-       lists.insert($1, $7);
-   } ;
+			{
+			lists.insert($1, $7);
+			} ;
 
 list:
 	'(' expressions ')'  {$$ = $2;};
@@ -177,8 +179,8 @@ statement:
 	expression |
 	if_statement |
 	fold_statement | 
-	when_statement |
-	switch_statement ;
+	when_statement {$$ = chekcWhen($4,$6);} |
+	switch_statement {$$ = checkSwitch($2, $4, $7);} ;
 
 switch_statement:
     SWITCH expression IS cases ENDSWITCH |      
@@ -238,11 +240,17 @@ optional_else:
 
 
 cases:
-	cases case {$$ = !isnan($1) ? $1 : $2;} |
+	cases case { 
+			$$ = !isnan($1) ? $1 : $2 ;
+			$$ = checkCases($1,$2) ;
+			} |
 	%empty {$$ = NAN;} ;
 	
 case:
-	CASE INT_LITERAL ARROW statements {$$ = $<value>-2 == $2 ? $4 : NAN; } |
+	CASE INT_LITERAL ARROW statements {
+						$$ = $<value>-2 == $2 ? $4 : NAN; 
+						$$ = $4 ;
+						} |
 	CASE error ARROW statements ';' | 
 	CASE INT_LITERAL ARROW error ';' ;
 
@@ -265,13 +273,21 @@ relation:
 	expression RELOP expression {$$ = evaluateRelational($1, $2, $3);};
 
 expression:
-    expression ADDOP term   { $$ = evaluateArithmetic($1, $2, $3); }
-  | term;
+	expression ADDOP term   {
+				$$ = checkArtithmetic($1, $3) ;
+				$$ = evaluateArithmetic($1, $2, $3); 
+				}
+	| term;
 
 term:
-    term MULOP factor       { $$ = evaluateArithmetic($1, $2, $3); }
-  | term REMOP factor       { $$ = evaluateArithmetic($1, REMAINDER, $3); }
-  | factor;
+	term MULOP factor	{
+				$$ = checkArithmetic($1, $3);
+				$$ = evaluateArithmetic($1, $2, $3);
+				} 
+	| term REMOP factor	{	
+				$$ = evaluateArithmetic($1, REMAINDER, $3); 
+				}
+	| factor;
 
 factor:
     primary |
