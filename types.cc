@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+
 using namespace std;
 
 #include "types.h"
@@ -100,3 +101,11 @@ Types checkFold(Types elementType) {
 	return MISMATCH;
 }
 
+Types find(Symbols<Types>& table, CharPtr identifier, string tableName) {
+    Types type;
+    if (!table.find(identifier, type)) {
+        appendError(GENERAL_SEMANTIC, tableName + " " + identifier);
+        return MISMATCH;
+    }
+    return type;
+}

@@ -90,6 +90,8 @@ void appendError(ErrorCategories errorCategory, string message)
         case SYNTAX:  
             syntaxErrors++; 
             break;
+	case SEMANTIC:
+	    sematicErrors++;
         case GENERAL_SEMANTIC: 
         case DUPLICATE_IDENTIFIER:
         case UNDECLARED_IDENTIFIER:

@@ -129,8 +129,8 @@ parameter:
 
 type:
 	INTEGER {$$ = INT_TYPE;}|
-	CHARACTER |
-	REAL;
+	CHARACTER {$$ = CHAR_TYPE;}|
+	REAL {$$ = REAL_TYPE;};
 
 	
 optional_variable:
@@ -142,7 +142,7 @@ variable:
    IDENTIFIER ':' type IS statement ';'
 			{
 			checkAssignment($3,$5, "Variable Initialization");
-			symbols.insert($1,$5);
+			symbols.insert($1,$3);
 			} |
    IDENTIFIER ':' LIST OF type IS list ';'
 			{
@@ -170,11 +170,11 @@ body:
 statements:
 	statements statement_ { $$ = $2 ;} |
 	statement_ { $$ = $1;} |
-	%empty ;
+	%empty {$$ = NONE;} ;
 
 statement_:
 	statement ';' |
-	error ';'  {$$ = 0;} ;
+	error ';'  {$$ = MISMATCH;} ;
     
 statement:
 	expression |
@@ -184,7 +184,7 @@ statement:
 	switch_statement  ;
 
 switch_statement:
-    SWITCH expression IS cases ENDSWITCH |      
+    SWITCH expression IS cases ENDSWITCH {$$ = checkSwitch($2,$4,NONE);} |      
     SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH {
 								$$ = checkSwitch($2, $4, $7);
 								$$ = !isnan($4) ? $4 : $7;
@@ -201,9 +201,7 @@ when_statement:
 fold_statement:
     FOLD direction operator operand ENDFOLD
     {
-        int dir = (int) (yyvsp[-3].value);
-        /* $3.oper is your Operators enum, $4.list is the vector<double>* */
-        (yyval.value) = evaluateFold(dir, (yyvsp[-2].oper), * (yyvsp[-1].list));
+	$$ = INT_TYPE;
     };
 
 direction:
@@ -230,17 +228,15 @@ operand:
 if_statement:
 	IF condition THEN statements elsif_clauses optional_else ENDIF
 	{
-		if ($2) $$ = $4;
-		else if (!isnan($5)) $$ = $5;
-		else $$ = $6;
+		$$ = NONE;
 	};
 
 elsif_clauses:
-	elsif_clauses elsif_clause { $$ = !isnan($1) ? $1 : $2; } |
+	elsif_clauses elsif_clause { $$ = $1 != NONE ? $1 : $2; } |
 	%empty { $$ = NONE; };
 
 elsif_clause:
-	ELSIF condition THEN statements { $$ = $2 ? $4 : NONE; };
+	ELSIF condition THEN statements { $$ = $2 != NONE ? $4 : NONE; };
 
 optional_else:
 	ELSE statements { $$ = $2; } |
@@ -249,14 +245,12 @@ optional_else:
 
 cases:
 	cases case { 
-			$$ = !isnan($1) ? $1 : $2 ;
 			$$ = checkCases($1,$2) ;
 			} |
 	%empty {$$ = NONE;} ;
 	
 case:
 	CASE INT_LITERAL ARROW statements {
-						$$ = $<value>-2 == $2 ? $4 : NONE; 
 						$$ = $4 ;
 						} |
 	CASE error ARROW statements ';' | 
@@ -264,21 +258,21 @@ case:
 
 
 condition:
-	condition ANDOP relation {$$ = $1 && $2;} |
-	condition OROP logical_and {$$ = $1 && $3;} |
+	condition ANDOP relation {$$ = checkLogical($1, $3);} |
+	condition OROP logical_and {$$ = checkLogical($1, $3); }|
 	logical_and ;
 
 logical_and:
-	logical_and ANDOP logical_not {$$ = $1 && $3; }|
+	logical_and ANDOP logical_not {$$ = checkLogical($1,$3);}|
 	logical_not ;
 
 logical_not:
-	NOTOP logical_not {$$ = !$2; } |
+	NOTOP logical_not {$$ = checkNot($2);} |
 	relation
 
 relation:
 	'(' condition ')' {$$ = $2;}|
-	expression RELOP expression {$$ = evaluateRelational($1, $2, $3);};
+	expression RELOP expression {$$ = checkRelational($1, $3);};
 
 expression:
 	expression ADDOP term   {
@@ -297,19 +291,18 @@ term:
 
 factor:
     primary |
-    primary EXPOP factor { $$ = evaluateArithmetic($1, EXPONENT, $3); } ;
+    primary EXPOP factor { $$ = checkExponentiation($1, $3) ;} ;
 
 primary:
-    NEGOP primary           { $$ = evaluateNegation($2); }
+    NEGOP primary           { $$ = $2; }
   | '(' expression ')'      { $$ = $2; }
   | INT_LITERAL             { $$ = INT_TYPE; }
   | CHAR_LITERAL            { $$ = CHAR_TYPE; }
   | REAL_LITERAL            { $$ = REAL_TYPE; }
   | HEX_LITERAL             { $$ = INT_TYPE; }
-  | IDENTIFIER '(' expression ')' { $$ = extract_element($1, $3); }
+  | IDENTIFIER '(' expression ')' { $$ = find(listTypes , $1, "List");}
   | IDENTIFIER {
-        if (!scalars.find($1, $$))
-            appendError(UNDECLARED_IDENTIFIER, $1);
+		$$ = find(symbols, $1, "Scalar");
     };
 %%
 
@@ -331,10 +324,10 @@ int main(int argc, char *argv[]) {
 		paramValues = new double[argc - 1];
 		for (int i = 1; i < argc; i++)
 			paramValues[i - 1] = atof(argv[i]);
-		paramIndex = 0; // ✅ set after values are loaded
+		paramIndex = 0; 
 	} else {
 		paramValues = nullptr;
-		paramIndex = 0;  // still set for consistency
+		paramIndex = 0;  
 	}
 
 	yyparse();

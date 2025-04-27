@@ -7,9 +7,15 @@
 // This file contains type definitions and the function
 // prototypes for the type checking functions
 
+#ifndef types_h
+#define types_h
+#include <string>
+#include "symbols.h"
+
 typedef char* CharPtr;
 
-enum Types {MISMATCH, INT_TYPE, CHAR_TYPE, NONE};
+
+enum Types {MISMATCH, INT_TYPE, CHAR_TYPE, REAL_TYPE, NONE};
 
 void checkAssignment(Types lValue, Types rValue, string message);
 Types checkWhen(Types true_, Types false_);
@@ -21,4 +27,6 @@ Types checkLogical(Types left, Types right);
 Types checkNot(Types operand);
 Types checkExponentiation(Types base, Types exponent);
 Types checkFold(Types elementType);
+Types find(Symbols<Types>& table, CharPtr identifier , string tableName);
 
+#endif 

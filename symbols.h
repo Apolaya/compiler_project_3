@@ -5,6 +5,12 @@
 
 // This file contains the template symbol table
 
+#ifndef SYMBOLS_H
+#define SYMBOLS_H
+
+#include <map>
+#include <string>
+using namespace std;
 template <typename T>
 class Symbols
 {
@@ -34,3 +40,4 @@ bool Symbols<T>::find(char* lexeme, T& entry)
 	return found;
 }
 
+#endif
