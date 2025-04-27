@@ -16,4 +16,9 @@ Types checkWhen(Types true_, Types false_);
 Types checkSwitch(Types case_, Types when, Types other);
 Types checkCases(Types left, Types right);
 Types checkArithmetic(Types left, Types right);
+Types checkRelational(Types left , Types right);
+Types checkLogical(Types left, Types right);
+Types checkNot(Types operand);
+Types checkExponentiation(Types base, Types exponent);
+Types checkFold(Types elementType);
 

@@ -54,45 +54,45 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    IDENTIFIER = 258,              /* IDENTIFIER  */
-    INT_LITERAL = 259,             /* INT_LITERAL  */
-    CHAR_LITERAL = 260,            /* CHAR_LITERAL  */
-    HEX_LITERAL = 261,             /* HEX_LITERAL  */
-    REAL = 262,                    /* REAL  */
-    REAL_LITERAL = 263,            /* REAL_LITERAL  */
-    LEFT = 264,                    /* LEFT  */
-    RIGHT = 265,                   /* RIGHT  */
-    ADDOP = 266,                   /* ADDOP  */
-    MULOP = 267,                   /* MULOP  */
-    ANDOP = 268,                   /* ANDOP  */
-    RELOP = 269,                   /* RELOP  */
-    ARROW = 270,                   /* ARROW  */
-    REMOP = 271,                   /* REMOP  */
-    EXPOP = 272,                   /* EXPOP  */
-    NEGOP = 273,                   /* NEGOP  */
-    OROP = 274,                    /* OROP  */
-    NOTOP = 275,                   /* NOTOP  */
-    ELSIF = 276,                   /* ELSIF  */
-    ENDFOLD = 277,                 /* ENDFOLD  */
-    FOLD = 278,                    /* FOLD  */
-    IF = 279,                      /* IF  */
-    THEN = 280,                    /* THEN  */
-    ENDIF = 281,                   /* ENDIF  */
-    BEGIN_ = 282,                  /* BEGIN_  */
-    CASE = 283,                    /* CASE  */
-    CHARACTER = 284,               /* CHARACTER  */
-    ELSE = 285,                    /* ELSE  */
-    END = 286,                     /* END  */
-    ENDSWITCH = 287,               /* ENDSWITCH  */
-    FUNCTION = 288,                /* FUNCTION  */
-    INTEGER = 289,                 /* INTEGER  */
-    IS = 290,                      /* IS  */
-    LIST = 291,                    /* LIST  */
-    OF = 292,                      /* OF  */
-    OTHERS = 293,                  /* OTHERS  */
-    RETURNS = 294,                 /* RETURNS  */
-    SWITCH = 295,                  /* SWITCH  */
-    WHEN = 296                     /* WHEN  */
+    ELSIF = 258,                   /* ELSIF  */
+    ENDFOLD = 259,                 /* ENDFOLD  */
+    FOLD = 260,                    /* FOLD  */
+    IF = 261,                      /* IF  */
+    THEN = 262,                    /* THEN  */
+    ENDIF = 263,                   /* ENDIF  */
+    BEGIN_ = 264,                  /* BEGIN_  */
+    CASE = 265,                    /* CASE  */
+    CHARACTER = 266,               /* CHARACTER  */
+    ELSE = 267,                    /* ELSE  */
+    END = 268,                     /* END  */
+    ENDSWITCH = 269,               /* ENDSWITCH  */
+    FUNCTION = 270,                /* FUNCTION  */
+    INTEGER = 271,                 /* INTEGER  */
+    IS = 272,                      /* IS  */
+    LIST = 273,                    /* LIST  */
+    OF = 274,                      /* OF  */
+    OTHERS = 275,                  /* OTHERS  */
+    RETURNS = 276,                 /* RETURNS  */
+    SWITCH = 277,                  /* SWITCH  */
+    WHEN = 278,                    /* WHEN  */
+    IDENTIFIER = 279,              /* IDENTIFIER  */
+    ADDOP = 280,                   /* ADDOP  */
+    MULOP = 281,                   /* MULOP  */
+    ANDOP = 282,                   /* ANDOP  */
+    RELOP = 283,                   /* RELOP  */
+    ARROW = 284,                   /* ARROW  */
+    REMOP = 285,                   /* REMOP  */
+    EXPOP = 286,                   /* EXPOP  */
+    NEGOP = 287,                   /* NEGOP  */
+    OROP = 288,                    /* OROP  */
+    NOTOP = 289,                   /* NOTOP  */
+    INT_LITERAL = 290,             /* INT_LITERAL  */
+    CHAR_LITERAL = 291,            /* CHAR_LITERAL  */
+    HEX_LITERAL = 292,             /* HEX_LITERAL  */
+    REAL = 293,                    /* REAL  */
+    REAL_LITERAL = 294,            /* REAL_LITERAL  */
+    LEFT = 295,                    /* LEFT  */
+    RIGHT = 296                    /* RIGHT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -101,15 +101,17 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 43 "parser.y"
+#line 52 "parser.y"
 
 	CharPtr iden;
 	Operators oper;
 	double value;
 	vector<double>* list;
 	int dir;
+	//project4
+	Types type;
 
-#line 113 "parser.tab.h"
+#line 115 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

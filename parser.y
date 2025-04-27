@@ -35,7 +35,7 @@ Types find(Symbols<Types>& table, CharPtr identifier, string tableName);
 
 
 Symbols<Types> symbols;
-Symbols<Types> lists;
+Symbols<Types> listTypes;
 
 
 double result;
@@ -69,25 +69,26 @@ int paramIndex = -1;
 
 //union changed from value ->type projec4
 %token <type> INT_LITERAL CHAR_LITERAL HEX_LITERAL REAL REAL_LITERAL LEFT RIGHT
-%type <value> expression term factor primary relation condition logical_and logical_not
-%type <value> direction
-%type <value> case cases
-%type <value> if_statement elsif_clauses elsif_clause optional_else
-%type <value> switch_statement when_statement
-%type <value> fold_statement
-%type <value> statement
-%type <value> statement_
-%type <value> statements
-%type <value> body
-%type <value> variable optional_variable
-%type <value> type
-%type <value> parameter parameter_list parameters
-%type <value> function_header
-%type <value> function
+%type <type> expression term factor primary relation condition logical_and logical_not
+%type <type> case cases
+%type <type> if_statement elsif_clauses elsif_clause optional_else
+%type <type> switch_statement when_statement
+%type <type> fold_statement
+%type <type> statement
+%type <type> statement_
+%type <type> statements
+%type <type> body
+%type <type> variable optional_variable
+%type <type> type
+%type <type> parameter parameter_list parameters
+%type <type> function_header
+%type <type> function
 
 %type <list> vector
 %type <list> list expressions
 %type <list> operand
+
+%type <value> direction
 
 %right EXPOP 
 %left ADDOP
@@ -100,8 +101,8 @@ int paramIndex = -1;
 
 %%
 
-function:	
-	function_header optional_variable body  {result = $3;} ;
+function:
+    function_header optional_variable body { result = 0; };
 
 function_header:	
 	FUNCTION IDENTIFIER parameters RETURNS type ';'  |
@@ -127,7 +128,7 @@ parameter:
 	};
 
 type:
-	INTEGER |
+	INTEGER {$$ = INT_TYPE;}|
 	CHARACTER |
 	REAL;
 
@@ -141,11 +142,11 @@ variable:
    IDENTIFIER ':' type IS statement ';'
 			{
 			checkAssignment($3,$5, "Variable Initialization");
-			scalars.insert($1, $5);
+			symbols.insert($1,$5);
 			} |
    IDENTIFIER ':' LIST OF type IS list ';'
 			{
-			lists.insert($1, $7);
+			listTypes.insert($1,$5);
 			} ;
 
 list:
@@ -179,15 +180,22 @@ statement:
 	expression |
 	if_statement |
 	fold_statement | 
-	when_statement {$$ = chekcWhen($4,$6);} |
-	switch_statement {$$ = checkSwitch($2, $4, $7);} ;
+	when_statement  |
+	switch_statement  ;
 
 switch_statement:
     SWITCH expression IS cases ENDSWITCH |      
-    SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH {$$ = !isnan($4) ? $4 : $7;} ;  
+    SWITCH expression IS cases OTHERS ARROW statement ';' ENDSWITCH {
+								$$ = checkSwitch($2, $4, $7);
+								$$ = !isnan($4) ? $4 : $7;
+								} ;  
 
 when_statement:
-	WHEN condition ',' expression ':' expression {$$ = $2 ? $4 : $6;} ;
+	WHEN condition ',' expression ':' expression {
+							$$ = checkWhen($4,$6);
+							$$ = $2 ? $4 : $6;
+							} ;
+
 
 
 fold_statement:
@@ -229,14 +237,14 @@ if_statement:
 
 elsif_clauses:
 	elsif_clauses elsif_clause { $$ = !isnan($1) ? $1 : $2; } |
-	%empty { $$ = NAN; };
+	%empty { $$ = NONE; };
 
 elsif_clause:
-	ELSIF condition THEN statements { $$ = $2 ? $4 : NAN; };
+	ELSIF condition THEN statements { $$ = $2 ? $4 : NONE; };
 
 optional_else:
 	ELSE statements { $$ = $2; } |
-	%empty { $$ = NAN; };
+	%empty { $$ = NONE; };
 
 
 cases:
@@ -244,11 +252,11 @@ cases:
 			$$ = !isnan($1) ? $1 : $2 ;
 			$$ = checkCases($1,$2) ;
 			} |
-	%empty {$$ = NAN;} ;
+	%empty {$$ = NONE;} ;
 	
 case:
 	CASE INT_LITERAL ARROW statements {
-						$$ = $<value>-2 == $2 ? $4 : NAN; 
+						$$ = $<value>-2 == $2 ? $4 : NONE; 
 						$$ = $4 ;
 						} |
 	CASE error ARROW statements ';' | 
@@ -274,18 +282,16 @@ relation:
 
 expression:
 	expression ADDOP term   {
-				$$ = checkArtithmetic($1, $3) ;
-				$$ = evaluateArithmetic($1, $2, $3); 
+				$$ = checkArithmetic($1, $3 ) ;
 				}
 	| term;
 
 term:
 	term MULOP factor	{
 				$$ = checkArithmetic($1, $3);
-				$$ = evaluateArithmetic($1, $2, $3);
 				} 
 	| term REMOP factor	{	
-				$$ = evaluateArithmetic($1, REMAINDER, $3); 
+				$$ = checkArithmetic($1,$3);
 				}
 	| factor;
 
@@ -296,10 +302,10 @@ factor:
 primary:
     NEGOP primary           { $$ = evaluateNegation($2); }
   | '(' expression ')'      { $$ = $2; }
-  | INT_LITERAL             { $$ = $1; }
-  | CHAR_LITERAL            { $$ = $1; }
-  | REAL_LITERAL            { $$ = $1; }
-  | HEX_LITERAL             { $$ = $1; }
+  | INT_LITERAL             { $$ = INT_TYPE; }
+  | CHAR_LITERAL            { $$ = CHAR_TYPE; }
+  | REAL_LITERAL            { $$ = REAL_TYPE; }
+  | HEX_LITERAL             { $$ = INT_TYPE; }
   | IDENTIFIER '(' expression ')' { $$ = extract_element($1, $3); }
   | IDENTIFIER {
         if (!scalars.find($1, $$))
@@ -316,7 +322,7 @@ double extract_element(CharPtr list_name, double subscript) {
 	if (lists.find(list_name, list))
 		return (*list)[subscript];
 	appendError(UNDECLARED_IDENTIFIER, list_name);
-	return NAN;
+	return NONE;
 }
 int main(int argc, char *argv[]) {
 	firstLine();

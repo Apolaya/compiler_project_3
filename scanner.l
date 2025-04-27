@@ -15,8 +15,8 @@ using namespace std;
 
 #include "values.h"
 #include "listing.h"
-#include "tokens.h"
 #include "types.h"
+#include "tokens.h"
 
 int hexToInt(const char* text);
 char convertEscapeChar(const char* text);
