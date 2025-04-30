@@ -107,11 +107,12 @@ union YYSTYPE
 	Operators oper;
 	double value;
 	vector<double>* list;
+	vector<Types>* typeList;
 	int dir;
 	//project4
 	Types type;
 
-#line 115 "parser.tab.h"
+#line 116 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

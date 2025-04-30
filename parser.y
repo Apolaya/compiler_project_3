@@ -54,6 +54,7 @@ int paramIndex = -1;
 	Operators oper;
 	double value;
 	vector<double>* list;
+	vector<Types>* typeList;
 	int dir;
 	//project4
 	Types type;
@@ -83,9 +84,13 @@ int paramIndex = -1;
 %type <type> parameter parameter_list parameters
 %type <type> function_header
 %type <type> function
+%type <type> expressions
+%type <typeList> expressions_raw
+%type <type> list
+
+
 
 %type <list> vector
-%type <list> list expressions
 %type <list> operand
 
 %type <value> direction
@@ -156,14 +161,18 @@ vector:
        '(' ')' { $$ = new vector<double>(); };
 
 expressions:
-	expressions ',' expression { 
-		$1->push_back($3); 
-		$$ = $1; 
-	    } |
-	    expression { 
-		$$ = new vector<double>(); 
-		$$->push_back($1); 
-	    };
+	expressions_raw { $$ = checkList(*$1); delete $1; };
+
+expressions_raw:
+	expressions_raw ',' expression {
+		$1->push_back($3);
+		$$ = $1;
+	} |
+	expression {
+		$$ = new vector<Types>();
+		$$->push_back($1);
+	};
+
 body:
 	BEGIN_ statements END ';' {$$  = $2;} ;
 
@@ -212,9 +221,6 @@ operator:
 	ADDOP | MULOP | RELOP;
 
 operand:
-    list {
-        $$ = $1;
-    } | 
     IDENTIFIER {
         vector<double>* lst;
         if (!lists.find($1, lst)) {

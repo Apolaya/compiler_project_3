@@ -107,6 +107,22 @@ Types checkFold(Types elementType) {
 	return MISMATCH;
 }
 
+Types checkList(vector<Types>& elements) {
+	if (elements.empty())
+		return MISMATCH;
+
+	Types first = elements[0];
+	for (size_t i = 1; i < elements.size(); ++i) {
+		if (elements[i] == MISMATCH)
+			return MISMATCH;
+		if (elements[i] != first) {
+			appendError(GENERAL_SEMANTIC, "List Elements Have Mismatched Types");
+			return MISMATCH;
+		}
+	}
+	return first;
+}
+
 Types find(Symbols<Types>& table, CharPtr identifier, string tableName) {
     Types type;
     if (!table.find(identifier, type)) {
