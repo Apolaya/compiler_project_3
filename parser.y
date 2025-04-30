@@ -151,7 +151,8 @@ variable:
 			} |
    IDENTIFIER ':' LIST OF type IS list ';'
 			{
-			listTypes.insert($1,$5);
+			Types finalType = checkListDeclaration($5, $7);
+			listTypes.insert($1, finalType);
 			} ;
 
 list:
@@ -306,7 +307,10 @@ primary:
   | CHAR_LITERAL            { $$ = CHAR_TYPE; }
   | REAL_LITERAL            { $$ = REAL_TYPE; }
   | HEX_LITERAL             { $$ = INT_TYPE; }
-  | IDENTIFIER '(' expression ')' { $$ = find(listTypes , $1, "List");}
+  | IDENTIFIER '(' expression ')' {
+      checkSubscript($3);
+      $$ = find(listTypes, $1, "List");
+  }
   | IDENTIFIER {
 		$$ = find(symbols, $1, "Scalar");
     };

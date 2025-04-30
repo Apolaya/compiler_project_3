@@ -28,6 +28,8 @@ Types checkNot(Types operand);
 Types checkExponentiation(Types base, Types exponent);
 Types checkFold(Types elementType);
 Types checkList(vector<Types>& elements) ;
+Types checkSubscript(Types indexType);
+Types checkListDeclaration(Types declaredElementType, Types actualElementType);
 Types find(Symbols<Types>& table, CharPtr identifier , string tableName);
 
 #endif 

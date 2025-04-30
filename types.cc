@@ -107,6 +107,26 @@ Types checkFold(Types elementType) {
 	return MISMATCH;
 }
 
+//step 6 checking subscript 
+Types checkSubscript(Types indexType) {
+    if (indexType != INT_TYPE && indexType != MISMATCH) {
+        appendError(GENERAL_SEMANTIC, "List Subscript Must Be Integer");
+        return MISMATCH;
+    }
+    return indexType;
+}
+
+//step 5 variable check
+Types checkListDeclaration(Types declaredElementType, Types actualElementType) {
+    if (declaredElementType == MISMATCH || actualElementType == MISMATCH)
+        return MISMATCH;
+    if (declaredElementType != actualElementType) {
+        appendError(GENERAL_SEMANTIC, "List Type Does Not Match Element Types");
+        return MISMATCH;
+    }
+    return declaredElementType;
+}
+
 Types checkList(vector<Types>& elements) {
 	if (elements.empty())
 		return MISMATCH;
