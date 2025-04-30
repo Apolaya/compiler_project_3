@@ -16,7 +16,7 @@ enum Operators {ADD, MULTIPLY, LESS, AND, SUBTRACT, DIVIDE, EXPONENT, NEGATE, RE
 double evaluateArithmetic(double left, Operators operator_, double right);
 double evaluateRelational(double left, Operators operator_, double right);
 double evaluateNegation(double value);
-double evaluateFold(int dir, Operators op, const vector<double>& vals);
+//double evaluateFold(int dir, Operators op, const vector<double>& vals);
 
 #endif
 

@@ -48,9 +48,15 @@ Types checkArithmetic(Types left, Types right) {
 		return MISMATCH;
 	if (left == INT_TYPE && right == INT_TYPE)
 		return INT_TYPE;
-	appendError(GENERAL_SEMANTIC, "Integer Type Required");
+	if ((left == INT_TYPE && right == REAL_TYPE) ||
+	    (left == REAL_TYPE && right == INT_TYPE) ||
+	    (left == REAL_TYPE && right == REAL_TYPE))
+		return REAL_TYPE;
+
+	appendError(GENERAL_SEMANTIC, "Incompatible types for arithmetic operation");
 	return MISMATCH;
 }
+
 // Checks types for relational operators (<, >, ==, etc.)
 Types checkRelational(Types left, Types right) {
 	if (left == MISMATCH || right == MISMATCH)
