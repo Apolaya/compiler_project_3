@@ -292,7 +292,7 @@ term:
 				$$ = checkArithmetic($1, $3);
 				} 
 	| term REMOP factor	{	
-				$$ = checkArithmetic($1,$3);
+				$$ = checkRemainder($1,$3);
 				}
 	| factor;
 
@@ -301,7 +301,7 @@ factor:
     primary EXPOP factor { $$ = checkExponentiation($1, $3) ;} ;
 
 primary:
-    NEGOP primary           { $$ = $2; }
+    NEGOP primary           { $$ = checkNegation($2); }
   | '(' expression ')'      { $$ = $2; }
   | INT_LITERAL             { $$ = INT_TYPE; }
   | CHAR_LITERAL            { $$ = CHAR_TYPE; }

@@ -104,19 +104,50 @@ Types checkNot(Types operand) {
 Types checkExponentiation(Types base, Types exponent) {
 	if (base == MISMATCH || exponent == MISMATCH)
 		return MISMATCH;
+
 	if (base == INT_TYPE && exponent == INT_TYPE)
 		return INT_TYPE;
-	appendError(GENERAL_SEMANTIC, "Exponentiation Requires Integer Operands");
+
+	if ((base == REAL_TYPE && exponent == INT_TYPE) ||
+	    (base == INT_TYPE && exponent == REAL_TYPE) ||
+	    (base == REAL_TYPE && exponent == REAL_TYPE))
+		return REAL_TYPE;
+
+	appendError(GENERAL_SEMANTIC, "Exponentiation Requires Numeric Operands");
 	return MISMATCH;
 }
 
-// Optional: if you want specific checking inside FOLD statements
+// Negation 
+Types checkNegation(Types operand) {
+	if (operand == MISMATCH)
+		return MISMATCH;
+
+	if (operand == INT_TYPE || operand == REAL_TYPE)
+		return operand;
+
+	appendError(GENERAL_SEMANTIC, "Negation Requires Numeric Operand");
+	return MISMATCH;
+}
+
+//fold statement
 Types checkFold(Types elementType) {
 	if (elementType == MISMATCH)
 		return MISMATCH;
 	if (elementType == INT_TYPE)
 		return INT_TYPE;
 	appendError(GENERAL_SEMANTIC, "Fold Requires List of Integers");
+	return MISMATCH;
+}
+
+// checking remainder 
+Types checkRemainder(Types left, Types right) {
+	if (left == MISMATCH || right == MISMATCH)
+		return MISMATCH;
+
+	if (left == INT_TYPE && right == INT_TYPE)
+		return INT_TYPE;
+
+	appendError(GENERAL_SEMANTIC, "Remainder Operator Requires Integer Operands");
 	return MISMATCH;
 }
 

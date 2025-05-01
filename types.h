@@ -30,6 +30,8 @@ Types checkFold(Types elementType);
 Types checkList(vector<Types>& elements) ;
 Types checkSubscript(Types indexType);
 Types checkListDeclaration(Types declaredElementType, Types actualElementType);
+Types checkNegation(Types operand);
 Types find(Symbols<Types>& table, CharPtr identifier , string tableName);
+Types checkRemainder(Types left, Types right);
 
 #endif 
