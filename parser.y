@@ -87,11 +87,11 @@ int paramIndex = -1;
 %type <type> expressions
 %type <typeList> expressions_raw
 %type <type> list
+%type <type> operand
 
 
 
 %type <list> vector
-%type <list> operand
 
 %type <value> direction
 
@@ -211,7 +211,7 @@ when_statement:
 fold_statement:
     FOLD direction operator operand ENDFOLD
     {
-	$$ = INT_TYPE;
+        $$ = checkFold($4);
     };
 
 direction:
@@ -221,16 +221,14 @@ direction:
 operator: 
 	ADDOP | MULOP | RELOP;
 
+
 operand:
     IDENTIFIER {
-        vector<double>* lst;
-        if (!lists.find($1, lst)) {
-            appendError(UNDECLARED_IDENTIFIER, $1);
-            $$ = new vector<double>();
-        } else {
-            $$ = lst;
-        }
-    } ;
+        $$ = find(listTypes, $1, "List");  // Return the type (INT_TYPE, CHAR_TYPE, etc)
+    } |
+    list {
+        $$ = $1;  // list rule already returns type via expressions → checkList
+    };
 
 if_statement:
     IF condition THEN statements elsif_clauses optional_else ENDIF

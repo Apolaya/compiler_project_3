@@ -134,9 +134,11 @@ Types checkNegation(Types operand) {
 Types checkFold(Types elementType) {
 	if (elementType == MISMATCH)
 		return MISMATCH;
-	if (elementType == INT_TYPE)
-		return INT_TYPE;
-	appendError(GENERAL_SEMANTIC, "Fold Requires List of Integers");
+
+	if (elementType == INT_TYPE || elementType == REAL_TYPE)
+		return elementType;
+
+	appendError(GENERAL_SEMANTIC, "Fold Requires A Numeric List");
 	return MISMATCH;
 }
 
