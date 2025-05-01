@@ -233,10 +233,10 @@ operand:
     } ;
 
 if_statement:
-	IF condition THEN statements elsif_clauses optional_else ENDIF
-	{
-		$$ = NONE;
-	};
+    IF condition THEN statements elsif_clauses optional_else ENDIF
+    {
+        $$ = checkIfStatement($4,$5,$6);
+    };
 
 elsif_clauses:
 	elsif_clauses elsif_clause { $$ = $1 != NONE ? $1 : $2; } |

@@ -33,5 +33,5 @@ Types checkListDeclaration(Types declaredElementType, Types actualElementType);
 Types checkNegation(Types operand);
 Types find(Symbols<Types>& table, CharPtr identifier , string tableName);
 Types checkRemainder(Types left, Types right);
-
+Types checkIfStatement(Types thenType, Types elsifType, Types elseType);
 #endif 

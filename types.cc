@@ -100,7 +100,7 @@ Types checkNot(Types operand) {
 	return MISMATCH;
 }
 
-// Checks types for exponentiation ^
+// Checks types for exponentiation 
 Types checkExponentiation(Types base, Types exponent) {
 	if (base == MISMATCH || exponent == MISMATCH)
 		return MISMATCH;
@@ -116,6 +116,7 @@ Types checkExponentiation(Types base, Types exponent) {
 	appendError(GENERAL_SEMANTIC, "Exponentiation Requires Numeric Operands");
 	return MISMATCH;
 }
+
 
 // Negation 
 Types checkNegation(Types operand) {
@@ -194,4 +195,25 @@ Types find(Symbols<Types>& table, CharPtr identifier, string tableName) {
         return MISMATCH;
     }
     return type;
+}
+
+Types checkIfStatement(Types thenType, Types elsifType, Types elseType) {
+	if (thenType == MISMATCH || elsifType == MISMATCH || elseType == MISMATCH)
+		return MISMATCH;
+
+	// if all are none, 
+	if (thenType == NONE && elsifType == NONE && elseType == NONE)
+		return NONE;
+
+	// IF one or more are none , 
+	Types base = (thenType != NONE) ? thenType : (elsifType != NONE ? elsifType : elseType);
+
+	if ((thenType == NONE || thenType == base) &&
+	    (elsifType == NONE || elsifType == base) &&
+	    (elseType == NONE || elseType == base)) {
+		return base;
+	}
+
+	appendError(GENERAL_SEMANTIC, "If-Elsif-Else Type Mismatch");
+	return MISMATCH;
 }
