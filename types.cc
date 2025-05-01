@@ -15,9 +15,30 @@ using namespace std;
 #include "types.h"
 #include "listing.h"
 
+//narrowing checks updated
 void checkAssignment(Types lValue, Types rValue, string message) {
-	if (lValue != MISMATCH && rValue != MISMATCH && lValue != rValue)
-		appendError(GENERAL_SEMANTIC, "Type Mismatch on " + message);
+	if (lValue == MISMATCH || rValue == MISMATCH)
+		return;
+
+	if (lValue == rValue)
+		return;
+
+	// Handle narrowing: assigning REAL to INT
+	if (lValue == INT_TYPE && rValue == REAL_TYPE) {
+		appendError(GENERAL_SEMANTIC, "Illegal Narrowing " + message);
+		return;
+	}
+
+	// General mismatch (e.g., int to char, real to char, etc.)
+	appendError(GENERAL_SEMANTIC, "Type Mismatch on " + message);
+}
+
+//duplicate checkig 
+void checkDuplicate(Symbols<Types>& table, CharPtr identifier, string tableName) {
+    Types dummy;
+    if (table.find(identifier, dummy)) {
+        appendError(GENERAL_SEMANTIC, "Duplicate " + tableName + " " + identifier);
+    }
 }
 
 Types checkWhen(Types true_, Types false_) {

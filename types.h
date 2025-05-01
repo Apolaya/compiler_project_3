@@ -34,6 +34,8 @@ Types checkNegation(Types operand);
 Types find(Symbols<Types>& table, CharPtr identifier , string tableName);
 Types checkRemainder(Types left, Types right);
 Types checkIfStatement(Types thenType, Types elsifType, Types elseType);
+void checkDuplicate(Symbols<Types>& table, CharPtr identifier, string tableName) ;
+
 
 
 #endif 

@@ -107,11 +107,18 @@ int paramIndex = -1;
 %%
 
 function:
-    function_header optional_variable body { result = 0; };
+    function_header optional_variable body {
+        checkAssignment($1, $3, "Function Return");
+        result = 0;
+    };
 
-function_header:	
-	FUNCTION IDENTIFIER parameters RETURNS type ';'  |
-	FUNCTION IDENTIFIER error ';';
+function_header:
+    FUNCTION IDENTIFIER parameters RETURNS type ';' {
+        $$ = $5;
+    } |
+    FUNCTION IDENTIFIER error ';' {
+        $$ = MISMATCH;
+    };
 
 parameters:
 	%empty |
@@ -144,16 +151,19 @@ optional_variable:
 	%empty ;
     
 variable:
-   IDENTIFIER ':' type IS statement ';'
-			{
-			checkAssignment($3,$5, "Variable Initialization");
-			symbols.insert($1,$3);
-			} |
-   IDENTIFIER ':' LIST OF type IS list ';'
-			{
-			Types finalType = checkListDeclaration($5, $7);
-			listTypes.insert($1, finalType);
-			} ;
+    IDENTIFIER ':' type IS statement ';'
+    {
+        checkDuplicate(symbols, $1, "Scalar");
+        checkAssignment($3, $5, "Variable Initialization");
+        symbols.insert($1, $3);
+    }
+  |
+    IDENTIFIER ':' LIST OF type IS list ';'
+    {
+        checkDuplicate(listTypes, $1, "List");
+        Types finalType = checkListDeclaration($5, $7);
+        listTypes.insert($1, finalType);
+    };
 
 list:
 	'(' expressions ')'  {$$ = $2;};
