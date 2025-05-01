@@ -57,12 +57,25 @@ Types checkArithmetic(Types left, Types right) {
 	return MISMATCH;
 }
 
-// Checks types for relational operators (<, >, ==, etc.)
+
 Types checkRelational(Types left, Types right) {
 	if (left == MISMATCH || right == MISMATCH)
 		return MISMATCH;
+
+	//integer comparison
 	if (left == INT_TYPE && right == INT_TYPE)
-		return INT_TYPE;  // relational returns integer (true/false as 1/0)
+		return INT_TYPE;
+
+	// Allow compare of characters
+	if (left == CHAR_TYPE && right == CHAR_TYPE)
+		return INT_TYPE;
+
+	// Do not allow char to int oor real to char 
+	if ((left == CHAR_TYPE || right == CHAR_TYPE)) {
+		appendError(GENERAL_SEMANTIC, "Character Comparison With Non-Character");
+		return MISMATCH;
+	}
+
 	appendError(GENERAL_SEMANTIC, "Relational Operator Requires Integer Operands");
 	return MISMATCH;
 }
